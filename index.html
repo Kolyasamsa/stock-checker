@@ -221,14 +221,22 @@ function ruleKey(s){
     .trim();
 }
 
+const CANONICAL_NAMES = new Set(RULES.map(r => ruleKey(r.replace)).filter(Boolean));
+
 function normalize(name){
   let s = String(name).trim().replace(/\s+/g," ");
   const key = ruleKey(s);
 
-  // Rules are taken from columns F:G of "форматирование названий".
-  // Some rules are deliberately short (for example "клубникой"), while
-  // others describe a complete SKU. Prefer the longest matching fragment
-  // so a specific SKU always wins over a broad fragment.
+  // Если название уже является нормализованным результатом из G,
+  // оставляем его как есть. Это важно для строк из заказа вида
+  // Торт "Киевский" 0,8 и Торт "Безэль" 0,5.
+  if(CANONICAL_NAMES.has(key)){
+    const canonical = RULES.find(r => ruleKey(r.replace) === key);
+    return canonical ? canonical.replace.trim() : s;
+  }
+
+  // Правила F:G применяем к исходным названиям. Если подходит несколько
+  // правил, берём самое длинное совпадение.
   let best = null;
   let bestLen = -1;
   for(const r of RULES){
@@ -275,8 +283,14 @@ function calculate(){
   const orders = normalizeMap(parseTable(orderText));
   const sales = normalizeMap(parseTable(salesText));
 
+  // Основной список — объединение всех номенклатур из остатков, заказа и реализации.
+  // Если товара нет в остатках, считаем его остаток равным 0, а заказ/реализацию
+  // всё равно показываем в основной таблице. Так заказанный товар не теряется
+  // из расчёта и сразу становится дефицитным/нулевым.
+  const allNames = new Set([...stock.keys(), ...orders.keys(), ...sales.keys()]);
   rows = [];
-  for(const [name,stockQty] of stock){
+  for(const name of allNames){
+    const stockQty = stock.get(name)||0;
     const orderQty = orders.get(name)||0;
     const salesQty = sales.get(name)||0;
     rows.push({
@@ -287,13 +301,15 @@ function calculate(){
     });
   }
 
+  // Сохраняем отдельный счётчик товаров, которых не было именно в остатках,
+  // но сами строки остаются в основной таблице.
   const missing = [];
-  for(const [name,qty] of orders){
-    if(!stock.has(name)) missing.push({name,qty,type:"Заказано"});
-  }
-  for(const [name,qty] of sales){
-    if(!stock.has(name) && !missing.some(x=>x.name===name))
-      missing.push({name,qty,type:"Реализация"});
+  for(const name of allNames){
+    if(!stock.has(name)){
+      const qty = orders.get(name)||sales.get(name)||0;
+      const type = orders.has(name) ? "Заказано" : "Реализация";
+      missing.push({name,qty,type});
+    }
   }
 
   document.getElementById("total").textContent = rows.length;
