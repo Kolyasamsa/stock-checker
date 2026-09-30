@@ -9,7 +9,17 @@
 body{margin:0;background:#f5f7fb;color:#172033;font-family:Inter,Segoe UI,Arial,sans-serif}
 .wrap{max-width:1500px;margin:0 auto;padding:28px}
 h1{margin:0 0 8px;font-size:30px}
-.sub{color:#667085;margin-bottom:24px}
+.sub{color:#667085;margin-bottom:16px}
+.warehouse-tabs{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 18px;padding:6px;background:#eef2f7;border:1px solid #dfe4ec;border-radius:12px}
+.warehouse-item{display:inline-flex;align-items:center;gap:2px}
+.warehouse-tab{display:inline-flex;align-items:center;height:38px;padding:0 14px;border:1px solid #d0d5dd;border-radius:9px;background:#fff;color:#344054;font-weight:700;cursor:pointer}
+.warehouse-tab:hover{background:#f8f9fc}
+.warehouse-tab.active{background:#315efb;color:#fff;border-color:#315efb}
+.warehouse-delete{width:24px;height:38px;margin-left:-2px;padding:0;border:1px solid #d0d5dd;border-radius:0 9px 9px 0;background:#fff;color:#667085;font-size:20px;line-height:36px;font-weight:500;cursor:pointer}
+.warehouse-delete:hover{background:#fef3f2;color:#b42318;border-color:#f3b5b0}
+.warehouse-rename{height:38px;box-sizing:border-box;padding:0 12px;border:2px solid #315efb;border-radius:9px;background:#fff;color:#344054;font:700 14px/36px inherit;outline:none}
+.warehouse-add{height:38px;padding:0 14px;background:#fff;color:#344054;border:1px dashed #98a2b3}
+.warehouse-add:hover{background:#f8f9fc}
 .inputs{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
 .card{background:#fff;border:1px solid #e3e7ef;border-radius:14px;padding:16px;box-shadow:0 2px 8px #00000008}
 label{font-weight:700;display:block;margin-bottom:9px}
@@ -69,6 +79,7 @@ tr:last-child td{border-bottom:0}
   <h1>Проверка остатков</h1>
   <div class="sub">Вставьте таблицы → нажмите «Проверить остатки». Данные обрабатываются прямо в браузере.</div>
 
+  <div class="warehouse-tabs" id="warehouseTabs"></div>
 
   <div class="inputs">
     <div class="card">
@@ -309,34 +320,238 @@ function status(row){
 }
 
 const STORAGE_KEY = "stockCheckerData_v2";
+const WAREHOUSE_STORAGE_KEY = "stockCheckerWarehouses_v1";
+const FIELD_IDS = ["stock","orders","receipt","sales","blocked"];
+const DEFAULT_WAREHOUSES = ["Склад 1","Склад 2","Склад 3"];
+let warehouseStore = {names:[...DEFAULT_WAREHOUSES], data:[{}, {}, {}]};
+let activeWarehouse = 0;
 
-function saveForm(){
-  const data={
-    stock:document.getElementById("stock").value,
-    orders:document.getElementById("orders").value,
-    receipt:document.getElementById("receipt").value,
-    sales:document.getElementById("sales").value,
-    blocked:document.getElementById("blocked").value
-  };
+function emptyWarehouse(){
+  return {stock:"",orders:"",receipt:"",sales:"",blocked:""};
+}
+
+function normalizeWarehouseStore(raw){
+  if(!raw || typeof raw!=="object") return {names:[...DEFAULT_WAREHOUSES],data:[{}, {}, {}]};
+
+  const hasNames=Array.isArray(raw.names) && raw.names.length>0;
+  const count=hasNames ? Math.min(5,Math.max(1,raw.names.length)) : 3;
+  const names=[];
+  for(let i=0;i<count;i++){
+    const value=hasNames ? String(raw.names[i]||"").trim() : "";
+    names.push(value || `Склад ${i+1}`);
+  }
+
+  const data=Array.from({length:count},()=>({}));
+  const source=Array.isArray(raw.data)?raw.data:[];
+  source.slice(0,count).forEach((entry,i)=>{
+    if(entry&&typeof entry==="object") FIELD_IDS.forEach(id=>{
+      data[i][id]=entry[id]!=null?String(entry[id]):"";
+    });
+  });
+
+  return {names,data};
+}
+
+function loadWarehouseStore(){
   try{
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    document.getElementById("savedState").textContent = "Сохранено в браузере · " + new Date().toLocaleTimeString("ru-RU", {hour:"2-digit", minute:"2-digit"});
+    const rawNew=localStorage.getItem(WAREHOUSE_STORAGE_KEY);
+    if(rawNew){
+      warehouseStore=normalizeWarehouseStore(JSON.parse(rawNew));
+      return;
+    }
+    const legacy=localStorage.getItem(STORAGE_KEY) || localStorage.getItem("stockCheckerData");
+    if(legacy){
+      const old=JSON.parse(legacy);
+      const first=emptyWarehouse();
+      FIELD_IDS.forEach(id=>{if(old[id]!=null) first[id]=String(old[id]);});
+      warehouseStore={names:[...DEFAULT_WAREHOUSES],data:[first,{},{}]};
+      localStorage.setItem(WAREHOUSE_STORAGE_KEY,JSON.stringify(warehouseStore));
+    }
   }catch(e){
-    console.warn("Не удалось сохранить данные в браузере", e);
+    console.warn("Не удалось загрузить склады из браузера", e);
+    warehouseStore={names:[...DEFAULT_WAREHOUSES],data:[{}, {}, {}]};
   }
 }
 
-function restoreForm(){
+function saveWarehouseStore(){
   try{
-    const raw=localStorage.getItem(STORAGE_KEY) || localStorage.getItem("stockCheckerData");
-    if(!raw)return;
-    const data=JSON.parse(raw);
-    ["stock","orders","receipt","sales","blocked"].forEach(id=>{
-      if(data[id]!=null) document.getElementById(id).value=data[id];
-    });
+    localStorage.setItem(WAREHOUSE_STORAGE_KEY,JSON.stringify(warehouseStore));
+    document.getElementById("savedState").textContent = "Сохранено в браузере · " + new Date().toLocaleTimeString("ru-RU", {hour:"2-digit", minute:"2-digit"});
   }catch(e){
-    console.warn("Не удалось восстановить сохранённые данные", e);
+    console.warn("Не удалось сохранить данные складов в браузере", e);
   }
+}
+
+function renderWarehouseTabs(){
+  const box=document.getElementById("warehouseTabs");
+  box.innerHTML="";
+  warehouseStore.names.forEach((name,i)=>{
+    const wrap=document.createElement("div");
+    wrap.className="warehouse-item";
+    wrap.dataset.warehouseItem=i;
+
+    const tab=document.createElement("button");
+    tab.type="button";
+    tab.className="warehouse-tab"+(i===activeWarehouse?" active":"");
+    tab.dataset.warehouse=i;
+    tab.textContent=name;
+
+    tab.title="Один клик — открыть склад · двойной клик — переименовать";
+    wrap.appendChild(tab);
+
+    if(warehouseStore.names.length>1){
+      const del=document.createElement("button");
+      del.type="button";
+      del.className="warehouse-delete";
+      del.textContent="×";
+      del.title=`Удалить склад «${name}»`;
+      del.addEventListener("click",e=>{
+        e.stopPropagation();
+        deleteWarehouse(i);
+      });
+      wrap.appendChild(del);
+    }
+
+    box.appendChild(wrap);
+  });
+  if(warehouseStore.names.length<5){
+    const add=document.createElement("button");
+    add.type="button";
+    add.className="warehouse-add";
+    add.textContent="+ Добавить склад";
+    add.addEventListener("click",addWarehouse);
+    box.appendChild(add);
+  }
+}
+
+function syncOpenEditors(){
+  Object.keys(editorState).forEach(id=>{
+    if(editorState[id]) syncEditorToText(id);
+  });
+}
+
+function saveForm(){
+  const current=warehouseStore.data[activeWarehouse] || (warehouseStore.data[activeWarehouse]=emptyWarehouse());
+  FIELD_IDS.forEach(id=>current[id]=document.getElementById(id).value);
+  saveWarehouseStore();
+}
+
+function applyWarehouseData(){
+  const current=warehouseStore.data[activeWarehouse] || (warehouseStore.data[activeWarehouse]=emptyWarehouse());
+  FIELD_IDS.forEach(id=>{
+    document.getElementById(id).value=current[id]||"";
+  });
+  Object.keys(editorState).forEach(id=>{
+    if(editorState[id]) renderEditor(id);
+  });
+}
+
+function clearResultsView(){
+  rows=[];
+  document.getElementById("results").classList.add("hidden");
+  document.getElementById("error").textContent="";
+}
+
+function switchWarehouse(index){
+  if(index===activeWarehouse) return;
+  syncOpenEditors();
+  saveForm();
+  activeWarehouse=index;
+  currentFilter="all";
+  sortKey="name";
+  sortDir="asc";
+  const search=document.getElementById("search");
+  if(search) search.value="";
+  document.querySelectorAll(".filters button").forEach((btn,i)=>btn.classList.toggle("active",i===0));
+  clearResultsView();
+  applyWarehouseData();
+  renderWarehouseTabs();
+  const current=warehouseStore.data[activeWarehouse]||{};
+  if(String(current.stock||"").trim() && String(current.orders||"").trim()) calculate(false);
+}
+
+function renameWarehouse(index){
+  const wrap=document.querySelector(`.warehouse-item[data-warehouse-item="${index}"]`);
+  if(!wrap) return;
+  if(wrap.querySelector(".warehouse-rename")) return;
+
+  const currentName=warehouseStore.names[index] || `Склад ${index+1}`;
+  const tab=wrap.querySelector(".warehouse-tab");
+  const input=document.createElement("input");
+  input.type="text";
+  input.className="warehouse-rename";
+  input.value=currentName;
+  input.title="Enter — сохранить · Esc — отменить";
+  input.style.width=Math.max(tab ? tab.offsetWidth : 120, 120)+"px";
+
+  wrap.innerHTML="";
+  wrap.appendChild(input);
+
+  let finished=false;
+  const finish=(commit)=>{
+    if(finished) return;
+    finished=true;
+    const name=input.value.trim();
+    if(commit && name){
+      warehouseStore.names[index]=name;
+      saveWarehouseStore();
+    }
+    renderWarehouseTabs();
+  };
+
+  input.addEventListener("keydown",e=>{
+    if(e.key==="Enter"){e.preventDefault();finish(true);}
+    else if(e.key==="Escape"){e.preventDefault();finish(false);}
+  });
+  input.addEventListener("blur",()=>finish(true));
+  input.focus();
+  input.select();
+}
+
+function deleteWarehouse(index){
+  if(warehouseStore.names.length<=1) return;
+
+  syncOpenEditors();
+  saveForm();
+
+  warehouseStore.names.splice(index,1);
+  warehouseStore.data.splice(index,1);
+
+  if(activeWarehouse===index){
+    activeWarehouse=Math.min(index,warehouseStore.names.length-1);
+  }else if(activeWarehouse>index){
+    activeWarehouse--;
+  }
+
+  currentFilter="all";
+  sortKey="name";
+  sortDir="asc";
+  const search=document.getElementById("search");
+  if(search) search.value="";
+  document.querySelectorAll(".filters button").forEach((btn,i)=>btn.classList.toggle("active",i===0));
+  clearResultsView();
+  saveWarehouseStore();
+  applyWarehouseData();
+  renderWarehouseTabs();
+
+  const current=warehouseStore.data[activeWarehouse]||{};
+  if(String(current.stock||"").trim() && String(current.orders||"").trim()) calculate(false);
+}
+
+function addWarehouse(){
+  if(warehouseStore.names.length>=5) return;
+  const idx=warehouseStore.names.length;
+  warehouseStore.names.push(`Склад ${idx+1}`);
+  warehouseStore.data.push(emptyWarehouse());
+  saveWarehouseStore();
+  switchWarehouse(idx);
+}
+
+function restoreForm(){
+  loadWarehouseStore();
+  activeWarehouse=Math.max(0,Math.min(activeWarehouse,warehouseStore.names.length-1));
+  applyWarehouseData();
+  renderWarehouseTabs();
 }
 
 function parseBlocked(text){
@@ -525,16 +740,6 @@ function toggleEditor(id){
   }
 }
 
-function closeEditorsForClear(){
-  Object.keys(editorState).forEach(id=>{
-    editorState[id]=false;
-    document.getElementById(id).style.display="";
-    document.getElementById(id+"Editor").classList.remove("open");
-    document.querySelector(`.mode-toggle[data-editor="${id}"]`).textContent="▦ Таблица";
-    document.querySelector(`#${id}Editor tbody`).innerHTML="";
-  });
-}
-
 function clearSingleField(id){
   const ta=document.getElementById(id);
   ta.value="";
@@ -550,7 +755,7 @@ function clearSingleField(id){
   if(btn && editorState[id]) btn.textContent="▤ Текст";
 }
 
-function calculate(){
+function calculate(shouldScroll=true){
   const stockText = document.getElementById("stock").value.trim();
   const orderText = document.getElementById("orders").value.trim();
   const receiptText = document.getElementById("receipt").value.trim();
@@ -624,7 +829,7 @@ function calculate(){
 
   document.getElementById("results").classList.remove("hidden");
   render();
-  document.getElementById("results").scrollIntoView({behavior:"smooth",block:"start"});
+  if(shouldScroll) document.getElementById("results").scrollIntoView({behavior:"smooth",block:"start"});
 }
 
 function normalizeSearchText(s){
@@ -696,6 +901,36 @@ function render(){
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
 }
+
+
+// Вкладки складов: один клик — переключение, двойной клик — переименование.
+// Важно: не перерисовываем вкладки сразу после первого клика, иначе второй
+// клик приходит уже на новый DOM-элемент и двойной клик теряется.
+let warehouseClickTimer=null;
+let warehouseClickIndex=null;
+const warehouseTabs=document.getElementById("warehouseTabs");
+warehouseTabs.addEventListener("click",e=>{
+  const tab=e.target.closest("[data-warehouse]");
+  if(!tab) return;
+  const index=Number(tab.dataset.warehouse);
+
+  if(e.detail>=2){
+    if(warehouseClickTimer!==null) clearTimeout(warehouseClickTimer);
+    warehouseClickTimer=null;
+    warehouseClickIndex=null;
+    renameWarehouse(index);
+    return;
+  }
+
+  warehouseClickIndex=index;
+  if(warehouseClickTimer!==null) clearTimeout(warehouseClickTimer);
+  warehouseClickTimer=setTimeout(()=>{
+    const target=warehouseClickIndex;
+    warehouseClickTimer=null;
+    warehouseClickIndex=null;
+    if(target!==null) switchWarehouse(target);
+  },650);
+});
 
 document.getElementById("check").addEventListener("click",calculate);
 document.getElementById("copyDeficit").addEventListener("click",copyDeficit);
