@@ -289,22 +289,39 @@ function status(row){
   return ["Достаточно","ok"];
 }
 
+const STORAGE_KEY = "stockCheckerData_v2";
+
 function saveForm(){
-  const data={stock:document.getElementById("stock").value,orders:document.getElementById("orders").value,receipt:document.getElementById("receipt").value,sales:document.getElementById("sales").value};
-  localStorage.setItem("stockCheckerData",JSON.stringify(data));
+  const data={
+    stock:document.getElementById("stock").value,
+    orders:document.getElementById("orders").value,
+    receipt:document.getElementById("receipt").value,
+    sales:document.getElementById("sales").value
+  };
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }catch(e){
+    console.warn("Не удалось сохранить данные в браузере", e);
+  }
 }
 
 function restoreForm(){
   try{
-    const data=JSON.parse(localStorage.getItem("stockCheckerData")||"null");
-    if(!data)return;
-    ["stock","orders","receipt","sales"].forEach(id=>{if(data[id]!=null)document.getElementById(id).value=data[id];});
-  }catch(e){}
+    const raw=localStorage.getItem(STORAGE_KEY) || localStorage.getItem("stockCheckerData");
+    if(!raw)return;
+    const data=JSON.parse(raw);
+    ["stock","orders","receipt","sales"].forEach(id=>{
+      if(data[id]!=null) document.getElementById(id).value=data[id];
+    });
+  }catch(e){
+    console.warn("Не удалось восстановить сохранённые данные", e);
+  }
 }
 
 function clearData(showConfirm=true){
   if(showConfirm&&!confirm("Очистить введённые данные?"))return;
   ["stock","orders","receipt","sales"].forEach(id=>document.getElementById(id).value="");
+  localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem("stockCheckerData");
   rows=[];
   document.getElementById("results").classList.add("hidden");
@@ -459,7 +476,12 @@ document.getElementById("check").addEventListener("click",calculate);
 document.getElementById("copyDeficit").addEventListener("click",copyDeficit);
 document.getElementById("exportExcel").addEventListener("click",exportExcel);
 document.getElementById("clearData").addEventListener("click",()=>clearData(true));
-["stock","orders","receipt","sales"].forEach(id=>document.getElementById(id).addEventListener("input",saveForm));
+["stock","orders","receipt","sales"].forEach(id=>{
+  const el=document.getElementById(id);
+  el.addEventListener("input",saveForm);
+  el.addEventListener("change",saveForm);
+});
+window.addEventListener("beforeunload",saveForm);
 restoreForm();
 document.getElementById("search").addEventListener("input",render);
 document.getElementById("sort").addEventListener("change",e=>{sortKey=e.target.value;render()});
