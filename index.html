@@ -27,10 +27,10 @@ button:hover{background:#244bd4}
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:16px 0;background:#f5f7fb;padding:10px 0;border-bottom:1px solid #e3e7ef}
 input,select{border:1px solid #cfd6e4;border-radius:9px;padding:10px 12px;background:#fff}
 input{min-width:280px}
-.filters button{background:#fff;color:#344054;border:1px solid #d0d5dd;padding:0 14px;height:38px;min-width:118px}.toolbar button{height:38px;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;line-height:1}.density-toggle{height:38px;align-items:center}.density-toggle button{height:30px;min-width:96px;padding:0 12px}.export-actions button{min-width:180px}
+.filters button{background:#fff;color:#344054;border:1px solid #d0d5dd;padding:0 14px;height:38px;min-width:118px}.toolbar button{height:38px;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;line-height:1}.export-actions button{min-width:180px}
 .filters button.active{background:#315efb;color:#fff;border-color:#315efb}
 .tablebox{overflow:auto;max-height:70vh;background:#fff;border:1px solid #e3e7ef;border-radius:12px}
-table{border-collapse:collapse;width:100%;min-width:900px;font-size:13px}
+table{border-collapse:collapse;width:100%;min-width:1160px;font-size:13px}
 th,td{padding:6px 8px;border-bottom:1px solid #edf0f5;text-align:right;white-space:nowrap;line-height:1.2}
 th:first-child,td:first-child{text-align:left}
 th{font-weight:700}
@@ -38,23 +38,27 @@ th:first-child,td:first-child{text-align:left}
 th{background:#f8f9fc;cursor:pointer;position:sticky;top:0;z-index:2}
 tr:last-child td{border-bottom:0}
 .badge{display:inline-block;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:700}
-.ok{background:#ecfdf3;color:#067647}.bad{background:#fef3f2;color:#b42318}.zero{background:#fff7ed;color:#c2410c}.negative-final{color:#b42318;font-weight:800}
+.ok{background:#ecfdf3;color:#067647}.bad{background:#fef3f2;color:#b42318}.zero{background:#fff7ed;color:#c2410c}.negative-final{color:#b42318;font-weight:800}.blocked-cell{white-space:normal;min-width:150px;max-width:260px;color:#b54708}
 .notfound{margin-top:18px}
 .notfound ul{margin:8px 0 0;padding-left:22px}
 @media(max-width:900px){.inputs{grid-template-columns:1fr}.summary{grid-template-columns:repeat(2,1fr)}.wrap{padding:15px}}
-.actions{flex-wrap:wrap}.secondary{background:#fff;color:#344054;border:1px solid #d0d5dd}.secondary:hover{background:#f8f9fc}.danger{background:#fff;color:#b42318;border:1px solid #f1b8b3}.danger:hover{background:#fef3f2}.warningbox{margin:16px 0;background:#fffaf0;border:1px solid #f5d48a;border-radius:12px;padding:14px 16px}.warningbox b{display:block;margin-bottom:7px}.warningbox ul{margin:0;padding-left:22px}.export-actions{display:flex;gap:8px;flex-wrap:wrap}th{z-index:2} .density-toggle{display:flex;align-items:center;gap:4px;background:#fff;border:1px solid #d0d5dd;border-radius:9px;padding:3px}.density-toggle button{background:transparent;color:#344054;padding:7px 10px;font-size:13px}.density-toggle button.active{background:#315efb;color:#fff}.compact-mode th,.compact-mode td{padding:2px 6px;font-size:13px;line-height:1.1}.table-total td{font-weight:800;background:#f8f9fc;border-top:2px solid #dfe4ec}.sortable::after{content:" ↕";color:#98a2b3;font-weight:400}.sortable.sort-active::after{content:" " attr(data-arrow);color:#315efb;font-weight:800}.saved-state{font-size:12px;color:#667085}.toast{position:fixed;right:22px;bottom:22px;background:#172033;color:#fff;padding:11px 15px;border-radius:10px;box-shadow:0 8px 25px #0002;opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none;z-index:50}.toast.show{opacity:1;transform:translateY(0)}
+.actions{flex-wrap:wrap}.secondary{background:#fff;color:#344054;border:1px solid #d0d5dd}.secondary:hover{background:#f8f9fc}.danger{background:#fff;color:#b42318;border:1px solid #f1b8b3}.danger:hover{background:#fef3f2}.warningbox{margin:16px 0;background:#fffaf0;border:1px solid #f5d48a;border-radius:12px;padding:14px 16px}.warningbox b{display:block;margin-bottom:7px}.warningbox ul{margin:0;padding-left:22px}.export-actions{display:flex;gap:8px;flex-wrap:wrap}th{z-index:2}.table-total td{font-weight:800;background:#f8f9fc;border-top:2px solid #dfe4ec}.sortable::after{content:" ↕";color:#98a2b3;font-weight:400}.sortable.sort-active::after{content:" " attr(data-arrow);color:#315efb;font-weight:800}.saved-state{font-size:12px;color:#667085}.toast{position:fixed;right:22px;bottom:22px;background:#172033;color:#fff;padding:11px 15px;border-radius:10px;box-shadow:0 8px 25px #0002;opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none;z-index:50}.toast.show{opacity:1;transform:translateY(0)}
 
 .mode-toggle{float:right;background:#fff;border:1px solid #d0d5dd;color:#344054;border-radius:8px;padding:5px 9px;font-size:12px;cursor:pointer}
 .mode-toggle:hover{background:#f8f9fc}
 .field-clear{float:right;margin-right:6px;width:27px;height:27px;padding:0;border:1px solid #d0d5dd;border-radius:8px;background:#fff;color:#667085;font-size:18px;line-height:24px;cursor:pointer}
 .field-clear:hover{background:#fef3f2;color:#b42318;border-color:#f3b5b0}
-.editor-wrap{display:none;margin-top:8px;border:1px solid #dfe4ec;border-radius:10px;overflow:auto;background:#fff;max-height:360px}
+.exclude-card{grid-column:1/-1}
+.blocked-textarea{height:150px}
+.field-hint{margin-top:7px;color:#667085;font-size:12px;line-height:1.4}
+.editor-wrap{display:none;margin-top:8px;border:1px solid #dfe4ec;border-radius:10px;overflow:auto;background:#fff;max-height:280px}
 .editor-wrap.open{display:block}
-.input-table{border-collapse:collapse;width:100%;min-width:420px;font-size:13px}
-.input-table th,.input-table td{padding:5px 7px;border-bottom:1px solid #edf0f5;white-space:nowrap}
-.input-table th{background:#f8f9fc;text-align:left;position:sticky;top:0;z-index:1}
-.input-table td:last-child,.input-table th:last-child{text-align:right;width:120px}
-.input-table input{width:100%;box-sizing:border-box;border:1px solid transparent;background:transparent;border-radius:5px;padding:4px 5px;font:13px/1.2 inherit}
+.input-table{border-collapse:collapse;width:max-content;min-width:0;table-layout:auto;font-size:13px}
+.input-table th,.input-table td{padding:3px 7px;border-bottom:1px solid #edf0f5;white-space:nowrap;height:30px}
+.input-table th{background:#f8f9fc;text-align:left;position:sticky;top:0;z-index:1;height:28px}
+.input-table td:first-child,.input-table th:first-child{width:max-content;white-space:nowrap}
+.input-table td:last-child,.input-table th:last-child{text-align:right;width:82px}
+.input-table input{width:max-content;min-width:0;box-sizing:border-box;border:1px solid transparent;background:transparent;border-radius:5px;padding:2px 4px;font:13px/1.15 inherit}.input-table td:first-child input{max-width:none}.input-table td:last-child input{width:max-content;min-width:0;text-align:right}
 .input-table input:hover,.input-table input:focus{border-color:#cfd6e4;background:#fff;outline:none}
 .editor-empty{padding:14px;color:#667085;font-size:13px}
 </style>
@@ -89,6 +93,15 @@ tr:last-child td{border-bottom:0}
       <label>Реализация с предыдущих дней <span style="font-weight:400;color:#667085">(необязательно)</span><button type="button" class="field-clear" data-clear-field="sales" title="Очистить поле">×</button><button type="button" class="mode-toggle" data-editor="sales">▦ Таблица</button></label>
       <textarea id="sales" placeholder="Можно оставить пустым"></textarea><div class="editor-wrap" id="salesEditor"><table class="input-table"><thead><tr><th>Номенклатура</th><th>Количество</th></tr></thead><tbody></tbody></table></div>
     </div>
+    <div class="card exclude-card">
+      <label>Брак / пересорт — не грузить <span style="font-weight:400;color:#667085">(необязательно)</span><button type="button" class="field-clear" data-clear-field="blocked" title="Очистить поле">×</button></label>
+      <textarea id="blocked" class="blocked-textarea" placeholder="По одной позиции в строке, например:
+Торт "Медовик" 0,5 — брак
+Торт "Киевский" 0,8 — пересорт
+
+Можно указать только название — тогда вычитается весь текущий остаток. Для частичного брака вставьте 2 колонки: Номенклатура + Количество."></textarea>
+      <div class="field-hint">Эти позиции не учитываются как доступный остаток для отгрузки, но фактический «Остаток» остаётся виден в таблице.</div>
+    </div>
   </div>
 
   <div class="actions">
@@ -113,7 +126,6 @@ tr:last-child td{border-bottom:0}
         <button data-filter="zero">Нулевой остаток</button>
       </div>
       <input id="search" placeholder="🔎 Поиск по номенклатуре">
-      <div class="density-toggle" aria-label="Плотность таблицы"><button type="button" id="densityCompact" class="active">Компактно</button><button type="button" id="densityNormal">Обычно</button></div>
       <div class="export-actions">
         <button id="copyDeficit" class="secondary">📋 Скопировать дефицит</button>
         <button id="exportExcel" class="secondary">📥 Скачать Excel</button>
@@ -130,6 +142,7 @@ tr:last-child td{border-bottom:0}
         <thead><tr>
           <th class="sortable" data-sort="name">Номенклатура</th>
           <th class="sortable" data-sort="stock">Остаток</th>
+          <th class="sortable" data-sort="blockedQty">Брак / пересорт</th>
           <th class="sortable" data-sort="receipt">Приход</th>
           <th class="sortable" data-sort="order">Заказано</th>
           <th class="sortable" data-sort="afterOrder">После заказа</th>
@@ -139,7 +152,7 @@ tr:last-child td{border-bottom:0}
         </tr></thead>
         <tbody id="tbody"></tbody>
         <tfoot><tr class="table-total">
-          <td>Итого</td><td id="sumStock">0</td><td id="sumReceipt">0</td><td id="sumOrder">0</td><td id="sumAfterOrder">0</td><td id="sumSales">0</td><td id="sumFinal">0</td><td></td>
+          <td>Итого</td><td id="sumStock">0</td><td id="sumBlocked">0</td><td id="sumReceipt">0</td><td id="sumOrder">0</td><td id="sumAfterOrder">0</td><td id="sumSales">0</td><td id="sumFinal">0</td><td></td>
         </tr></tfoot>
       </table>
     </div>
@@ -291,7 +304,7 @@ function fmt(n){
 
 function status(row){
   if(row.final < 0) return ["Дефицит","bad"];
-  if((row.stock + row.receipt) === 0) return ["Нулевой остаток","zero"];
+  if(row.available === 0) return ["Нулевой остаток","zero"];
   return ["Достаточно","ok"];
 }
 
@@ -302,7 +315,8 @@ function saveForm(){
     stock:document.getElementById("stock").value,
     orders:document.getElementById("orders").value,
     receipt:document.getElementById("receipt").value,
-    sales:document.getElementById("sales").value
+    sales:document.getElementById("sales").value,
+    blocked:document.getElementById("blocked").value
   };
   try{
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -312,27 +326,12 @@ function saveForm(){
   }
 }
 
-function applyDensity(mode){
-  const table=document.querySelector("table");
-  if(!table)return;
-  table.classList.toggle("compact-mode", mode === "compact");
-  document.getElementById("densityCompact").classList.toggle("active", mode === "compact");
-  document.getElementById("densityNormal").classList.toggle("active", mode === "normal");
-  try{localStorage.setItem("stockCheckerDensity", mode);}catch(e){}
-}
-
-function restoreDensity(){
-  let mode="compact";
-  try{mode=localStorage.getItem("stockCheckerDensity") || "compact";}catch(e){}
-  applyDensity(mode === "normal" ? "normal" : "compact");
-}
-
 function restoreForm(){
   try{
     const raw=localStorage.getItem(STORAGE_KEY) || localStorage.getItem("stockCheckerData");
     if(!raw)return;
     const data=JSON.parse(raw);
-    ["stock","orders","receipt","sales"].forEach(id=>{
+    ["stock","orders","receipt","sales","blocked"].forEach(id=>{
       if(data[id]!=null) document.getElementById(id).value=data[id];
     });
   }catch(e){
@@ -340,7 +339,74 @@ function restoreForm(){
   }
 }
 
-function renderWarnings(stockText,missing){
+function parseBlocked(text){
+  const out=new Map();
+  const add=(name,qty,reason)=>{
+    const key=normalize(name);
+    if(!key) return;
+    const cleanReason=(reason||"Брак / пересорт").trim() || "Брак / пересорт";
+    if(out.has(key)){
+      const prev=out.get(key);
+      const nextQty=(prev.qty==null || qty==null) ? null : prev.qty + qty;
+      const reasons=[prev.reason,cleanReason].filter(Boolean);
+      out.set(key,{qty:nextQty,reason:[...new Set(reasons)].join('; ')});
+    }else{
+      out.set(key,{qty:qty==null?null:Math.max(0,qty),reason:cleanReason});
+    }
+  };
+
+  for(const rawLine of String(text||"").split(/\r?\n/)){
+    let line=rawLine.trim();
+    if(!line) continue;
+    line=line.replace(/^[-*•]+\s*/,"").trim();
+    if(!line || /^итог$/i.test(line) || /^номенклатура$/i.test(line)) continue;
+
+    let name=line, qty=null, reason="Брак / пересорт";
+
+    if(line.includes("|")){
+      const cells=line.split("|").map(x=>x.trim()).filter(Boolean);
+      if(cells.length>=2){
+        name=cells[0];
+        const rest=cells.slice(1);
+        const qtyIndex=rest.findIndex(x=>parseNumber(x)!==null);
+        if(qtyIndex>=0){
+          qty=parseNumber(rest[qtyIndex]);
+          const reasonCells=rest.filter((_,i)=>i!==qtyIndex);
+          if(reasonCells.length) reason=reasonCells.join("; ");
+        }else{
+          reason=rest.join("; ") || reason;
+        }
+      }
+    }else if(line.includes("\t")){
+      const cells=line.split("\t").map(x=>x.trim()).filter(Boolean);
+      if(cells.length>=2){
+        name=cells[0];
+        const rest=cells.slice(1);
+        const qtyIndex=rest.findIndex(x=>parseNumber(x)!==null);
+        if(qtyIndex>=0){
+          qty=parseNumber(rest[qtyIndex]);
+          const reasonCells=rest.filter((_,i)=>i!==qtyIndex);
+          if(reasonCells.length) reason=reasonCells.join("; ");
+        }else{
+          reason=rest.join("; ") || reason;
+        }
+      }
+    }else{
+      const m=line.match(/^(.+?)\s+[—–-]\s+(.+)$/);
+      if(m){
+        name=m[1].trim();
+        reason=m[2].trim() || reason;
+      }
+    }
+
+    if(!name || /^-+$/.test(name) || /^:?-+:?$/.test(name)) continue;
+    if(looksLikeHeader(name)) continue;
+    add(name,qty,reason);
+  }
+  return out;
+}
+
+function renderWarnings(stockText,missing,blocked){
   const warnings=[];
   let negativeCount=0;
   for(const line of String(stockText||"").split(/\r?\n/)){
@@ -349,6 +415,7 @@ function renderWarnings(stockText,missing){
   }
   if(negativeCount)warnings.push(`Отрицательный остаток введён для ${negativeCount} поз. — в расчёте он заменён на 0.`);
   if(missing.length)warnings.push(`Не найдено в остатках: ${missing.length} поз. — проверьте названия или исходные данные.`);
+  if(blocked.size)warnings.push(`Брак / пересорт: ${blocked.size} поз. — указанное количество вычтено из доступного остатка; если количество не указано, вычитается весь текущий остаток.`);
   const deficit=rows.filter(r=>r.final<0).length;
   if(deficit)warnings.push(`Дефицит: ${deficit} поз. — конечный остаток меньше нуля. В том числе товар с нулевым остатком и заказом считается дефицитом.`);
   const receiptWithoutStock=rows.filter(r=>r.receipt>0&&r.stock===0&&missing.some(x=>x.name===r.name)).length;
@@ -362,9 +429,9 @@ function renderWarnings(stockText,missing){
 function exportExcel(){
   if(!rows.length)return;
   if(typeof XLSX==="undefined"){alert("Модуль Excel не загрузился. Проверьте подключение к интернету и обновите страницу.");return;}
-  const data=rows.map(r=>({"Номенклатура":r.name,"Остаток":r.stock,"Приход":r.receipt,"Заказано":r.order,"После заказа":r.afterOrder,"Реализация":r.sales,"Конечный остаток":r.final,"Статус":status(r)[0]}));
+  const data=rows.map(r=>({"Номенклатура":r.name,"Остаток":r.stock,"Брак / пересорт":r.blockedQty || "","Приход":r.receipt,"Заказано":r.order,"После заказа":r.afterOrder,"Реализация":r.sales,"Конечный остаток":r.final,"Статус":status(r)[0]}));
   const ws=XLSX.utils.json_to_sheet(data);
-  ws["!cols"]=[{wch:48},{wch:12},{wch:12},{wch:12},{wch:14},{wch:14},{wch:17},{wch:18}];
+  ws["!cols"]=[{wch:48},{wch:12},{wch:18},{wch:12},{wch:12},{wch:14},{wch:14},{wch:17},{wch:18}];
   const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Проверка");
   XLSX.writeFile(wb,"Проверка остатков.xlsx");
 }
@@ -488,6 +555,7 @@ function calculate(){
   const orderText = document.getElementById("orders").value.trim();
   const receiptText = document.getElementById("receipt").value.trim();
   const salesText = document.getElementById("sales").value.trim();
+  const blockedText = document.getElementById("blocked").value.trim();
   const err = document.getElementById("error");
   err.textContent = "";
 
@@ -498,24 +566,32 @@ function calculate(){
   const orders = normalizeMap(parseTable(orderText));
   const receipt = normalizeMap(parseTable(receiptText));
   const sales = normalizeMap(parseTable(salesText));
+  const blocked = parseBlocked(blockedText);
 
-  // Основной список — объединение всех номенклатур из остатков, заказа, прихода и реализации.
+  // Основной список — объединение всех номенклатур из остатков, заказа, прихода, реализации
+  // и списка брака/пересорта.
   // Если товара нет в остатках, считаем его остаток равным 0, а заказ/реализацию
   // всё равно показываем в основной таблице. Так заказанный товар не теряется
   // из расчёта и сразу становится дефицитным/нулевым.
-  const allNames = new Set([...stock.keys(), ...orders.keys(), ...receipt.keys(), ...sales.keys()]);
+  const allNames = new Set([...stock.keys(), ...orders.keys(), ...receipt.keys(), ...sales.keys(), ...blocked.keys()]);
   rows = [];
   for(const name of allNames){
+    const blockedEntry = blocked.get(name) || null;
     const stockQty = Math.max(0, stock.get(name)||0);
     const receiptQty = receipt.get(name)||0;
-    const effectiveStock = stockQty + receiptQty;
+    // Брак/пересорт вычитаем именно из текущего остатка.
+    // Если количество не указано, исключаем весь текущий остаток.
+    // Приход остаётся доступным для отгрузки.
+    const blockedQty = blockedEntry ? Math.min(stockQty, blockedEntry.qty==null ? stockQty : Math.max(0, blockedEntry.qty)) : 0;
+    const availableStock = Math.max(0, stockQty - blockedQty) + receiptQty;
     const orderQty = orders.get(name)||0;
     const salesQty = sales.get(name)||0;
     rows.push({
-      name, stock:stockQty, receipt:receiptQty, order:orderQty,
-      afterOrder:effectiveStock-orderQty,
+      name, stock:stockQty, blockedQty, blockedReason:blockedEntry ? blockedEntry.reason : "", receipt:receiptQty, order:orderQty,
+      available:availableStock,
+      afterOrder:availableStock-orderQty,
       sales:salesQty,
-      final:effectiveStock-orderQty-salesQty
+      final:availableStock-orderQty-salesQty
     });
   }
 
@@ -524,13 +600,13 @@ function calculate(){
   const missing = [];
   for(const name of allNames){
     if(!stock.has(name)){
-      const qty = orders.get(name)||sales.get(name)||0;
-      const type = orders.has(name) ? "Заказано" : (receipt.has(name) ? "Приход" : "Реализация");
+      const qty = orders.get(name)||sales.get(name)||receipt.get(name)||0;
+      const type = orders.has(name) ? "Заказано" : (receipt.has(name) ? "Приход" : (sales.has(name) ? "Реализация" : "Брак / пересорт"));
       missing.push({name,qty,type});
     }
   }
 
-  renderWarnings(stockText,missing);
+  renderWarnings(stockText,missing,blocked);
   document.getElementById("total").textContent = rows.length;
   document.getElementById("enough").textContent = rows.filter(r=>status(r)[0]==="Достаточно").length;
   document.getElementById("deficit").textContent = rows.filter(r=>status(r)[0]==="Дефицит").length;
@@ -573,6 +649,7 @@ function updateSortHeaders(){
 function updateTotals(){
   const sum=k=>rows.reduce((acc,r)=>acc+(Number(r[k])||0),0);
   document.getElementById("sumStock").textContent=fmt(sum("stock"));
+  document.getElementById("sumBlocked").textContent=fmt(sum("blockedQty"));
   document.getElementById("sumReceipt").textContent=fmt(sum("receipt"));
   document.getElementById("sumOrder").textContent=fmt(sum("order"));
   document.getElementById("sumAfterOrder").textContent=fmt(sum("afterOrder"));
@@ -607,8 +684,9 @@ function render(){
   for(const r of data){
     const [st,cls]=status(r);
     const tr=document.createElement("tr");
+    const blockedText = r.blockedQty>0 ? `${fmt(r.blockedQty)}${r.blockedReason ? ` (${escapeHtml(r.blockedReason)})` : ""}` : (r.blockedReason ? escapeHtml(r.blockedReason) : "");
     tr.innerHTML=`<td>${escapeHtml(r.name)}</td>
-      <td>${fmt(r.stock)}</td><td>${fmt(r.receipt)}</td><td>${fmt(r.order)}</td><td>${fmt(r.afterOrder)}</td>
+      <td>${fmt(r.stock)}</td><td class="blocked-cell">${blockedText}</td><td>${fmt(r.receipt)}</td><td>${fmt(r.order)}</td><td>${fmt(r.afterOrder)}</td>
       <td>${fmt(r.sales)}</td><td class="${r.final < 0 ? "negative-final" : ""}">${fmt(r.final)}</td>
       <td><span class="badge ${cls}">${st}</span></td>`;
     tbody.appendChild(tr);
@@ -622,15 +700,13 @@ function escapeHtml(s){
 document.getElementById("check").addEventListener("click",calculate);
 document.getElementById("copyDeficit").addEventListener("click",copyDeficit);
 document.getElementById("exportExcel").addEventListener("click",exportExcel);
-["stock","orders","receipt","sales"].forEach(id=>{
+["stock","orders","receipt","sales","blocked"].forEach(id=>{
   const el=document.getElementById(id);
   el.addEventListener("input",saveForm);
   el.addEventListener("change",saveForm);
 });
 window.addEventListener("beforeunload",saveForm);
 document.querySelectorAll("textarea").forEach(el=>el.addEventListener("keydown",e=>{if(e.ctrlKey&&e.key==="Enter"){e.preventDefault();calculate();}}));
-document.getElementById("densityCompact").addEventListener("click",()=>applyDensity("compact"));
-document.getElementById("densityNormal").addEventListener("click",()=>applyDensity("normal"));
 document.querySelectorAll(".mode-toggle").forEach(btn=>btn.addEventListener("click",()=>toggleEditor(btn.dataset.editor)));
 Object.keys(editorState).forEach(id=>{
   const box=document.getElementById(id+"Editor");
@@ -641,7 +717,6 @@ document.querySelectorAll(".field-clear").forEach(btn=>{
 });
 
 restoreForm();
-restoreDensity();
 document.getElementById("search").addEventListener("input",render);
 
 document.querySelectorAll(".filters button").forEach(btn=>{
