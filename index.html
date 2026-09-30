@@ -42,7 +42,7 @@ tr:last-child td{border-bottom:0}
 .notfound{margin-top:18px}
 .notfound ul{margin:8px 0 0;padding-left:22px}
 @media(max-width:900px){.inputs{grid-template-columns:1fr}.summary{grid-template-columns:repeat(2,1fr)}.wrap{padding:15px}}
-.actions{flex-wrap:wrap}.secondary{background:#fff;color:#344054;border:1px solid #d0d5dd}.secondary:hover{background:#f8f9fc}.danger{background:#fff;color:#b42318;border:1px solid #f1b8b3}.danger:hover{background:#fef3f2}.warningbox{margin:16px 0;background:#fffaf0;border:1px solid #f5d48a;border-radius:12px;padding:14px 16px}.warningbox b{display:block;margin-bottom:7px}.warningbox ul{margin:0;padding-left:22px}.export-actions{display:flex;gap:8px;flex-wrap:wrap}th{z-index:2} .density-toggle{display:flex;gap:4px;background:#fff;border:1px solid #d0d5dd;border-radius:9px;padding:3px}.density-toggle button{background:transparent;color:#344054;padding:7px 10px;font-size:13px}.density-toggle button.active{background:#315efb;color:#fff}.compact-mode th,.compact-mode td{padding:4px 7px;font-size:12px}.table-total td{font-weight:800;background:#f8f9fc;border-top:2px solid #dfe4ec}.sortable::after{content:" ↕";color:#98a2b3;font-weight:400}.sortable.sort-active::after{content:" " attr(data-arrow);color:#315efb;font-weight:800}.saved-state{font-size:12px;color:#667085}.toast{position:fixed;right:22px;bottom:22px;background:#172033;color:#fff;padding:11px 15px;border-radius:10px;box-shadow:0 8px 25px #0002;opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none;z-index:50}.toast.show{opacity:1;transform:translateY(0)}
+.actions{flex-wrap:wrap}.secondary{background:#fff;color:#344054;border:1px solid #d0d5dd}.secondary:hover{background:#f8f9fc}.danger{background:#fff;color:#b42318;border:1px solid #f1b8b3}.danger:hover{background:#fef3f2}.warningbox{margin:16px 0;background:#fffaf0;border:1px solid #f5d48a;border-radius:12px;padding:14px 16px}.warningbox b{display:block;margin-bottom:7px}.warningbox ul{margin:0;padding-left:22px}.export-actions{display:flex;gap:8px;flex-wrap:wrap}th{z-index:2} .density-toggle{display:flex;gap:4px;background:#fff;border:1px solid #d0d5dd;border-radius:9px;padding:3px}.density-toggle button{background:transparent;color:#344054;padding:7px 10px;font-size:13px}.density-toggle button.active{background:#315efb;color:#fff}.compact-mode th,.compact-mode td{padding:2px 6px;font-size:13px;line-height:1.1}.table-total td{font-weight:800;background:#f8f9fc;border-top:2px solid #dfe4ec}.sortable::after{content:" ↕";color:#98a2b3;font-weight:400}.sortable.sort-active::after{content:" " attr(data-arrow);color:#315efb;font-weight:800}.saved-state{font-size:12px;color:#667085}.toast{position:fixed;right:22px;bottom:22px;background:#172033;color:#fff;padding:11px 15px;border-radius:10px;box-shadow:0 8px 25px #0002;opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none;z-index:50}.toast.show{opacity:1;transform:translateY(0)}
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
@@ -100,19 +100,6 @@ tr:last-child td{border-bottom:0}
         <button data-filter="zero">Нулевой остаток</button>
       </div>
       <input id="search" placeholder="🔎 Поиск по номенклатуре">
-      <select id="sort">
-        <option value="name">Сортировка: номенклатура</option>
-        <option value="stock">Сортировка: остаток</option>
-        <option value="receipt">Сортировка: приход</option>
-        <option value="order">Сортировка: заказано</option>
-        <option value="afterOrder">Сортировка: после заказа</option>
-        <option value="sales">Сортировка: реализация</option>
-        <option value="final">Сортировка: конечный остаток</option>
-      </select>
-      <select id="direction">
-        <option value="asc">↑ по возрастанию</option>
-        <option value="desc">↓ по убыванию</option>
-      </select>
       <div class="density-toggle" aria-label="Плотность таблицы"><button type="button" id="densityCompact" class="active">Компактно</button><button type="button" id="densityNormal">Обычно</button></div>
       <div class="export-actions">
         <button id="copyDeficit" class="secondary">📋 Скопировать дефицит</button>
@@ -543,8 +530,6 @@ document.getElementById("densityNormal").addEventListener("click",()=>applyDensi
 restoreForm();
 restoreDensity();
 document.getElementById("search").addEventListener("input",render);
-document.getElementById("sort").addEventListener("change",e=>{sortKey=e.target.value;render()});
-document.getElementById("direction").addEventListener("change",e=>{sortDir=e.target.value;render()});
 
 document.querySelectorAll(".filters button").forEach(btn=>{
   btn.addEventListener("click",()=>{
@@ -562,8 +547,6 @@ document.querySelectorAll("th[data-sort]").forEach(th=>{
       sortKey=th.dataset.sort;
       sortDir="asc";
     }
-    document.getElementById("sort").value=sortKey;
-    document.getElementById("direction").value=sortDir;
     render();
   });
 });
