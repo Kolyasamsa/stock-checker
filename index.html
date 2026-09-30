@@ -24,7 +24,7 @@ button:hover{background:#244bd4}
 .summary{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:18px 0}
 .stat{background:#fff;border:1px solid #e3e7ef;border-radius:12px;padding:15px}
 .stat .n{font-size:25px;font-weight:800;margin-top:5px}
-.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:16px 0}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:16px 0;position:sticky;top:0;z-index:10;background:#f5f7fb;padding:10px 0;border-bottom:1px solid #e3e7ef}
 input,select{border:1px solid #cfd6e4;border-radius:9px;padding:10px 12px;background:#fff}
 input{min-width:280px}
 .filters button{background:#fff;color:#344054;border:1px solid #d0d5dd;padding:9px 13px}
@@ -42,7 +42,7 @@ tr:last-child td{border-bottom:0}
 .notfound{margin-top:18px}
 .notfound ul{margin:8px 0 0;padding-left:22px}
 @media(max-width:900px){.inputs{grid-template-columns:1fr}.summary{grid-template-columns:repeat(2,1fr)}.wrap{padding:15px}}
-.actions{flex-wrap:wrap}.secondary{background:#fff;color:#344054;border:1px solid #d0d5dd}.secondary:hover{background:#f8f9fc}.danger{background:#fff;color:#b42318;border:1px solid #f1b8b3}.danger:hover{background:#fef3f2}.warningbox{margin:16px 0;background:#fffaf0;border:1px solid #f5d48a;border-radius:12px;padding:14px 16px}.warningbox b{display:block;margin-bottom:7px}.warningbox ul{margin:0;padding-left:22px}.export-actions{display:flex;gap:8px;flex-wrap:wrap}th{z-index:2}
+.actions{flex-wrap:wrap}.secondary{background:#fff;color:#344054;border:1px solid #d0d5dd}.secondary:hover{background:#f8f9fc}.danger{background:#fff;color:#b42318;border:1px solid #f1b8b3}.danger:hover{background:#fef3f2}.warningbox{margin:16px 0;background:#fffaf0;border:1px solid #f5d48a;border-radius:12px;padding:14px 16px}.warningbox b{display:block;margin-bottom:7px}.warningbox ul{margin:0;padding-left:22px}.export-actions{display:flex;gap:8px;flex-wrap:wrap}th{z-index:2} .density-toggle{display:flex;gap:4px;background:#fff;border:1px solid #d0d5dd;border-radius:9px;padding:3px}.density-toggle button{background:transparent;color:#344054;padding:7px 10px;font-size:13px}.density-toggle button.active{background:#315efb;color:#fff}.compact-mode th,.compact-mode td{padding:4px 7px;font-size:12px}.table-total td{font-weight:800;background:#f8f9fc;border-top:2px solid #dfe4ec}.sortable::after{content:" ↕";color:#98a2b3;font-weight:400}.sortable.sort-active::after{content:" " attr(data-arrow);color:#315efb;font-weight:800}.saved-state{font-size:12px;color:#667085}.toast{position:fixed;right:22px;bottom:22px;background:#172033;color:#fff;padding:11px 15px;border-radius:10px;box-shadow:0 8px 25px #0002;opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none;z-index:50}.toast.show{opacity:1;transform:translateY(0)}
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
@@ -80,7 +80,7 @@ tr:last-child td{border-bottom:0}
   <div class="actions">
     <button id="check">Проверить остатки</button>
     <button id="clearData" class="secondary">Очистить данные</button>
-    <span id="error" class="error"></span>
+    <span id="error" class="error"></span><span id="savedState" class="saved-state"></span>
   </div>
 
   <section id="results" class="hidden">
@@ -99,7 +99,7 @@ tr:last-child td{border-bottom:0}
         <button data-filter="enough">Достаточно</button>
         <button data-filter="zero">Нулевой остаток</button>
       </div>
-      <input id="search" placeholder="Поиск по номенклатуре">
+      <input id="search" placeholder="🔎 Поиск по номенклатуре">
       <select id="sort">
         <option value="name">Сортировка: номенклатура</option>
         <option value="stock">Сортировка: остаток</option>
@@ -112,6 +112,7 @@ tr:last-child td{border-bottom:0}
         <option value="asc">↑ по возрастанию</option>
         <option value="desc">↓ по убыванию</option>
       </select>
+      <div class="density-toggle" aria-label="Плотность таблицы"><button type="button" id="densityCompact" class="active">Компактно</button><button type="button" id="densityNormal">Обычно</button></div>
       <div class="export-actions">
         <button id="copyDeficit" class="secondary">📋 Скопировать дефицит</button>
         <button id="exportExcel" class="secondary">📥 Скачать Excel</button>
@@ -126,16 +127,19 @@ tr:last-child td{border-bottom:0}
     <div class="tablebox">
       <table>
         <thead><tr>
-          <th data-sort="name">Номенклатура</th>
-          <th data-sort="stock">Остаток</th>
-          <th data-sort="receipt">Приход</th>
-          <th data-sort="order">Заказано</th>
-          <th data-sort="afterOrder">После заказа</th>
-          <th data-sort="sales">Реализация</th>
-          <th data-sort="final">Конечный остаток</th>
+          <th class="sortable" data-sort="name">Номенклатура</th>
+          <th class="sortable" data-sort="stock">Остаток</th>
+          <th class="sortable" data-sort="receipt">Приход</th>
+          <th class="sortable" data-sort="order">Заказано</th>
+          <th class="sortable" data-sort="afterOrder">После заказа</th>
+          <th class="sortable" data-sort="sales">Реализация</th>
+          <th class="sortable" data-sort="final">Конечный остаток</th>
           <th>Статус</th>
         </tr></thead>
         <tbody id="tbody"></tbody>
+        <tfoot><tr class="table-total">
+          <td>Итого</td><td id="sumStock">0</td><td id="sumReceipt">0</td><td id="sumOrder">0</td><td id="sumAfterOrder">0</td><td id="sumSales">0</td><td id="sumFinal">0</td><td></td>
+        </tr></tfoot>
       </table>
     </div>
 
@@ -145,6 +149,7 @@ tr:last-child td{border-bottom:0}
     </div>
   </section>
 </div>
+<div id="toast" class="toast"></div>
 
 <script>
 const RULES = [{"find": "черникой", "replace": "Торт \"Йогуртовый с черникой\" 0,7"}, {"find": "Американский ПАЛЛЕТ ФАНТЭЛЬ, шт", "replace": "Американский ПАЛЛЕТ ФАНТЭЛЬ, шт"}, {"find": "АРЛЕКИНО", "replace": "Торт \"Арлекино\" 0,6 ПБК"}, {"find": "Ассорти\" 0,3 гр. ФАНТЭЛЬ( 10 сут), шт", "replace": "Пирожное \"Ассорти\" 0,3"}, {"find": "БЛИННЫЙ 0,6", "replace": "Торт \"Блинный\" 0,6"}, {"find": "БОГЕМА 0,600 (НОВЫЙ штрих код) (7 сут) ФАНТЕЛЬ 0168, шт", "replace": "Торт \"Богема\" 0,6"}, {"find": "ВАРЕНКА\" трубочка 0,24 гр. ФАНТЭЛЬ (15 сут), шт", "replace": "Пирожное трубочки \"Варенка\" 0,24"}, {"find": "ВАРЕНЬКА 0,650 ПБК (21 сут) ФАНТЕЛЬ, шт", "replace": "Торт \"Варенька\" 0,65 ПБК"}, {"find": "Веснушка 0,3", "replace": "Торт \"Веснушка\" 0,3 (45 сут.)"}, {"find": "Воздушное  0,2  (45 сут) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Воздушное\" 0,2 (45 сут.)"}, {"find": "ВОСТОЧНАЯ СКАЗКА  0,800 (10 сут) ФАНТЭЛЬ, шт", "replace": "Торт \"Восточная сказка\" 0,8"}, {"find": "Гофротара ТУ-128 (474*234*326), шт", "replace": "Гофротара"}, {"find": "Гофротара ТУ-129 (474*234*305), шт", "replace": "Гофротара"}, {"find": "Гофротара ТУ-500 (474*234*220), шт", "replace": "гофра"}, {"find": "ДОМАШНИЙ 0,65", "replace": "Торт \"Домашний\" 0,65"}, {"find": "Домовёнок 0,360  15 суток (НОВЫЙ штрих код) ФАНТЕЛЬ 0120, шт", "replace": "Пирожное \"Домовенок\" 0,36 (15 с.)"}, {"find": "ДОМОВЕНОК 0,500 (1/16) /15 суток ФАНТЕЛЬ, шт", "replace": "Торт \"Домовенок\" 0,5"}, {"find": "Желание", "replace": "Торт \"Желание\" 0,625 (8 кусочков)"}, {"find": "Итог", "replace": "Итог"}, {"find": "Карнавал 0,5 ПБК (21 сут), шт", "replace": "Торт \"Карнавал\" 0,5 ПБК"}, {"find": "Киевский 0,55  (15сут), шт", "replace": "Торт \"Киевский\" 0,55"}, {"find": "КИЕВСКИЙ 0,800 (15 суток) ФАНТЕЛЬ, шт", "replace": "Торт \"Киевский\" 0,8"}, {"find": "КИЕВСКИЙ 0,95 (10 суток) ФАНТЕЛЬ, шт", "replace": "Торт \"Киевский\" 0,95"}, {"find": "КИЕВСКОЕ 0,3 гр. (45 суток), шт", "replace": "Пирожное \"Киевское\" 0,3 (45 сут.)"}, {"find": "Клубника со сливками 0,75 ПБК (21 суток), шт", "replace": "Торт \"Клубника со сливками\" 0,75 ПБК"}, {"find": "клубникой", "replace": "Торт \"Йогуртовый с клубникой\" 0,65"}, {"find": "Клубничный 0,6 ФАНТЭЛЬ (7 сут), шт", "replace": "Торт \"Клубничный\" 0,6"}, {"find": "Клубничный пирог 0,55 (10 сут), шт", "replace": "Пирог \"Клубничный\" 0,55"}, {"find": "КОМПЛИМЕНТ 0,750 (10 суток) ФАНТЕЛЬ, шт", "replace": "Торт \"Комплимент\" 0,75"}, {"find": "КУПЕЧЕСКИЙ 1,450 (10 сут) ФАНТЕЛЬ, шт", "replace": "Торт \"Купеческий\" 1,45"}, {"find": "КУПЕЧЕСКИЙ 1,450 (НОВЫЙ штрихкод) (10 сут) ФАНТЕЛЬ, шт", "replace": "Торт \"Купеческий\" 1,45"}, {"find": "КУПЕЧЕСКИЙ 4/1,450 (НОВЫЙ штрихкод) (10 сут) ФАНТЕЛЬ, шт", "replace": "Торт \"Купеческий\" 1,45"}, {"find": "Лог. Екатеринбург", "replace": "Лог. Екатеринбург"}, {"find": "Лог. ТЮМЕНЬ", "replace": "Лог. ТЮМЕНЬ"}, {"find": "Логистика ООО Тандер", "replace": "Логистика ООО Тандер"}, {"find": "ЛЮБИМЧИК ПАШКА 6/0,700(10сут) ФАНТЭЛЬ, шт", "replace": "Торт \"Любимчик Пашка\" 0,7"}, {"find": "Магнит", "replace": "Магнит"}, {"find": "Маковый 0,7 (10 суток) ФАНТЭЛЬ, шт", "replace": "Торт \"Маковый\" 0,7"}, {"find": "Маковый 0,7 ФАНТЭЛЬ, шт", "replace": "Торт \"Маковый\" 0,7"}, {"find": "Маркиза 0,55 (10сут) ФАНТЕЛЬ, шт", "replace": "Торт \"Маркиза\" 0,55"}, {"find": "Маркиза 0,55 (10сут), шт", "replace": "Торт \"Маркиза\" 0,55"}, {"find": "МЕДОВИК 0,5 (10 сут)ФАНТЕЛЬ 0014, шт", "replace": "Торт \"Медовик\" 0,5"}, {"find": "МЕДОВИК 0,5 ПБК (21 сут), шт", "replace": "Торт \"Медовик\" 0,5 ПБК"}, {"find": "Медовик 0,95 (НОВЫЙ штрихкод) ( 10 сут) ФАНТЕЛЬ, шт", "replace": "Торт \"Медовик\" 0,95"}, {"find": "МИНИСТЕРСКИЙ 1,0 (15 суток) ФАНТЕЛЬ, шт", "replace": "Торт \"Министерский\" 1,0"}, {"find": "МИНИСТЕРСКИЙ 1,95 (10 суток) ФАНТЕЛЬ, шт", "replace": "Торт \"Министерский\" 1,95"}, {"find": "МИНИСТЕРСКИЙ 1,95 /10 суток/ ФАНТЕЛЬ, шт", "replace": "Торт \"Министерский\" 1,95"}, {"find": "Мистер Пингвин 0,700 (7 сут) ФАНТЭЛЬ, шт", "replace": "Торт \"Мистер Пингвин\" 0,7"}, {"find": "Мулатка 0,650гр./6шт (10  суток) ФАНТЕЛЬ, шт", "replace": "Торт \"Мулатка\" 0,65"}, {"find": "Мулатка 0,650гр./6шт (10 суток) ФАНТЕЛЬ, шт", "replace": "Торт \"Мулатка\" 0,65"}, {"find": "НАПОЛЕОН 0,250 гр./ 20 шт. ПБК (45 сут), шт", "replace": "Торт \"Наполеон\" 0,25 ПБК (45 сут.)"}, {"find": "НАПОЛЕОН 0,3 (45 сут), шт", "replace": "Торт \"Наполеон\" 0,3 (45 сут.)"}, {"find": "пир. Безель 0,150 (21 сут) ФАНТЕЛЬ, шт", "replace": "Набор пирожных \"Безэль\" 0,15"}, {"find": "Пир. Белочка 0,25 (15 суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Белочка\" 0,25"}, {"find": "пир. Бургер kids 0.200 ФАНТЭЛЬ (10 сут), шт", "replace": "Пирожное \"Бургер kids\" 0,2"}, {"find": "пир. Бургер kids 0.200 ФАНТЭЛЬ( 10 сут), шт", "replace": "Пирожное \"Бургер kids\" 0,2"}, {"find": "пир. ВАРЕНКА трубочка 0,24 гр. ФАНТЭЛЬ (15 сут), шт", "replace": "Пирожное трубочки \"Варенка\" 0,24"}, {"find": "пир. Воздушное  0,2  ( 10 сут)ФАНТЭЛЬ, шт", "replace": "Пирожное \"Воздушное\" 0,2 (10 сут.)"}, {"find": "пир. Домовёнок 0,360  15 суток (НОВЫЙ штрих код) ФАНТЕЛЬ 0120, шт", "replace": "Пирожное \"Домовенок\" 0,36 (15 с.)"}, {"find": "пир. Домовёнок 0,42 Delisse (15 сут), шт", "replace": "Пирожное \"DELISSE Домовенок\" 0,42"}, {"find": "пир. Домовёнок 0,42 Delisse15сут), шт", "replace": "Пирожное \"DELISSE Домовенок\" 0,42"}, {"find": "пир. Домовёнок 0,42 ЛЕНТА(15сут), шт", "replace": "Пирожное \"Домовенок\"Лента 0,42"}, {"find": "пир. КИЕВСКОЕ 0,3 гр. (45 суток) Фантэль, шт", "replace": "Пирожное \"Киевское\" 0,3 (45 сут.)"}, {"find": "пир. Лукошко 0,180 (7 сут) ФАНТЕЛЬ, шт", "replace": "Пирожное \"Лукошко\" 0,18"}, {"find": "пир. Маффин со вкусом абрикоса 0,24(21 сут) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Маффин со вкусом абрикоса\" 0,24"}, {"find": "пир. Маффин со вкусом вишни 0,24(21 сут) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Маффин со вкусом вишни\" 0,24"}, {"find": "пир. Маффин со вкусом клубники 0,24(21 сут) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Маффин со вкусом клубники\" 0,24"}, {"find": "пир. Морковное 0,150гр ФАНТЭЛЬ 10 сут, шт", "replace": "Пирожное \"Морковное\" 0,15"}, {"find": "пир. Наполеон 0,18 (15 суток) Фантэль, шт", "replace": "Пирожное \"Наполеон\" 0,18"}, {"find": "пир. Профитроли с зав кремом\" 0,18 гр. (7 суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Профитроли с заварным кремом\" 0,18"}, {"find": "пир. Сметанное 0,15 (10 суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Сметанное\" 0,15"}, {"find": "пир. Тирамису  0,15 (10 суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Тирамису\" 0,15"}, {"find": "пир. ТОРТЕЛЬЕ\" 0,33 гр. ФАНТЭЛЬ(  10 сут), шт", "replace": "Пирожное \"Тортелье\" 0,33"}, {"find": "пир. Шоколадное 0,15 (10 суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Шоколадное\" 0,15"}, {"find": "Пирожное \"Пчелка\" 0,65 ПБК (45 сут.)", "replace": "Пирожное \"Пчелка\" 0,65 ПБК (45 сут.)"}, {"find": "ПЛОМБИР 0,700 ФАНТЭЛЬ ( 10 сут), шт", "replace": "Торт \"Пломбир\" 0,7"}, {"find": "Поддон Американский Фантэль (1000*1200*150), шт", "replace": "поддон"}, {"find": "ПОДДОН деревянный 120*80 ФАНТЭЛЬ, шт", "replace": "Поддон"}, {"find": "Поддон деревянный 120*80, шт", "replace": "Поддон"}, {"find": "ПОЛЕТ №1 0,500 (15 сут) ФАНТЕЛЬ, шт", "replace": "Торт \"Полет №1\" 0,5"}, {"find": "ПРАГА (круглый) 0,650 (10 суток)ФАНТЕЛЬ, шт", "replace": "Торт \"Прага\" 0,65"}, {"find": "ПРАГА 0,350/20 шт (НОВЫЙ штрих код) ФАНТЕЛЬ (10 сут), шт", "replace": "Торт \"Прага\" 0,35 (10 сут.)"}, {"find": "ПРАГА 0,5 (10 суток)ФАНТЕЛЬ, шт", "replace": "Торт \"Прага\" 0,5"}, {"find": "ПРАГА 0,500 Delisse (15 сут), шт", "replace": "Торт \"DELISSE Прага\" 0,5"}, {"find": "ПРАГА 0,500 Delisse(10сут), шт", "replace": "Торт \"DELISSE Прага\" 0,5"}, {"find": "ПРАГА 0,500 Лента(10сут), шт", "replace": "Торт \"Прага\" Лента 0,5"}, {"find": "ПЧЕЛКА 0,750 (15 суток) ФАНТЕЛЬ, шт", "replace": "Торт \"Пчелка\" 0,75"}, {"find": "ПЧЕЛКА 1,15 (10 суток) ФАНТЕЛЬ, шт", "replace": "Торт \"Пчелка\" 1,15"}, {"find": "РЫЖИЙ 0,500 ПБК (21 суток), шт", "replace": "Торт \"Рыжий\" 0,5 ПБК"}, {"find": "Сметанкин 0,8 ( 7 сут) ФАНТЭЛЬ, шт", "replace": "Торт \"Сметанкин\" 0,8"}, {"find": "Сметанофф классический 0,65 (10 сут) ФАНТЭЛЬ, шт", "replace": "Торт \"Сметанофф классический\" 0,65"}, {"find": "СНИККИ орешек 0,500 гр. (10 сут) ФАНТЕЛЬ, шт", "replace": "Торт \"Сникки орешек\" 0,5"}, {"find": "Соблазн 0,57 ПБК (21 суток), шт", "replace": "Торт \"Соблазн\" 0,57 ПБК"}, {"find": "Тирамису 0,500 ФАНТЭЛЬ (7 сут), шт", "replace": "Торт \"Тирамису\" 0,5"}, {"find": "Царский 0,800 ( 10 сут) ФАНТЕЛЬ, шт", "replace": "Торт \"Царский\" 0,8"}, {"find": "Царский 0,800 (10 сут) ФАНТЕЛЬ, шт", "replace": "Торт \"Царский\" 0,8"}, {"find": "Шоколадный брауни 0,6 ПБК (21 сут) ФАНТЭЛЬ, шт", "replace": "Торт \"Шоколадный брауни\" 0,6 ПБК"}, {"find": "Экзотик 0,700 (10 сут) ФАНТЭЛЬ, шт", "replace": "Торт \"Экзотик\" 0,7"}, {"find": "ЭСТЕРХАЗИ 0,800 (10 суток) (НОВЫЙ штрихкод) ФАНТЕЛЬ, шт", "replace": "Торт \"Эстерхази\" 0,8"}, {"find": "Этикет-дата  \"Фантэль\" 32,5*23,5 зеленая, шт", "replace": "Этикет"}, {"find": "Ягодное ассорти пирог 0,5 (10 сут), шт", "replace": "Пирог \"Ягодное ассорти\" 0,5"}, {"find": "Пчёлка 0,3 (45суток), шт", "replace": "Торт \"Пчелка\" 0,3 ПБК (45 сут.)"}, {"find": "Клубничный 0,6 ПБК ФАНТЭЛЬ (21 сут), шт", "replace": "Торт \"Клубничный\" 0,6 ПБК"}, {"find": "МИНИСТЕРСКИЙ 1,95 (15 суток) ФАНТЕЛЬ, шт", "replace": "Торт \"Министерский\" 1,95"}, {"find": "АПЕЛЬСИНОВЫЙ 0,600 ПБК(21 сут) ФАНТЕЛЬ, шт", "replace": "Торт \"Апельсиновый\" 0,6 ПБК"}, {"find": "Медовик 0,95 (НОВЫЙ штрихкод) (10 сут) ФАНТЕЛЬ, шт", "replace": "Торт \"Медовик\" 0,95"}, {"find": "Пирожное \"Киевкое\" 0,105, шт", "replace": "Пирожное \"Киевское\" 0,105"}, {"find": "Пирожное \"Пчелка\" 0,144, шт", "replace": "Пирожное \"Пчелка\" 0,144"}, {"find": "ПЛОМБИР 0,700 ФАНТЭЛЬ (10 сут), шт", "replace": "Торт \"Пломбир\" 0,7"}, {"find": "Торт \"Киевский\" 0,8 СП, шт", "replace": "Торт \"Киевский\" 0,8 СП"}, {"find": "Торт \"Наполеон\" 0,45 СП, шт", "replace": "Торт \"Наполеон\" 0,45 СП"}, {"find": "Торт \"Прага\" 0,5 СП, шт", "replace": "Торт \"Прага\" 0,5 СП"}, {"find": "Торт \"Рыжик\" 0,9 СП, шт", "replace": "Торт \"Рыжик\" 0,9 СП"}, {"find": "пир. КИЕВСКОЕ 0,3 гр. (15 суток) Фантэль, шт", "replace": "Пирожное \"Киевское\" 0,3 (15 сут.)"}, {"find": "пир. \"Шоколадное\" Вишня 0,120 ПБК (21 сут) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Шоколадное\" вишня 0,120 ПБК"}, {"find": "пир. Шоколадное  вишня 0,12 ПБК ( суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Шоколадное\" вишня 0,120 ПБК"}, {"find": "пир. Шоколадное  вишня 0,12 ПБК (21 суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Шоколадное\" вишня 0,120 ПБК"}, {"find": "пир. Шоколадное 0,12  персик ПБК (21 суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Шоколадное\" персик 0,120 ПБК"}, {"find": "Осенний поцелуй 0,6 (7 сут)Фантель, шт", "replace": "Торт \"Осенний поцелуй\" 0,6"}, {"find": "Номенклатура, Базовая единица измерения", "replace": "Номенклатура, Базовая единица измерения"}, {"find": "пир. Шоколадное  персик 0,12 ПБК (21 суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Шоколадное\" персик 0,120 ПБК"}, {"find": "Черный принц 0,640  (10 сут) Фантель, шт", "replace": "Торт \"Черный принц\" 0,64"}, {"find": "Гофротара ТУ-854 (474*235*365), шт", "replace": "Гофротара ТУ-854 (474*235*365), шт"}, {"find": "Склад", "replace": "Склад"}, {"find": "Французский 0,47 (10 сут) ФАНТЭЛЬ, шт", "replace": "Торт \"Французский\" 0,47"}, {"find": "Безэль 0,500 ФАНТЕЛЬ, шт", "replace": "Торт \"Безэль\" 0,5"}, {"find": "пир. Шоколадное персик 0,12 ПБК (21 суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Шоколадное\" персик 0,120 ПБК"}, {"find": "Безэль 0,500 ФАНТЕЛЬ 15 сут, шт", "replace": "Торт \"Безэль\" 0,5"}, {"find": "Карнавал 0,5 ПБК (21 сут)  ФАНТЭЛЬ, шт", "replace": "Торт \"Карнавал\" 0,5 ПБК"}, {"find": "КИЕВСКИЙ 0,800 (15 суток) ФАНТЭЛЬ, шт", "replace": "Торт \"Киевский\" 0,8"}, {"find": "МЕДОВИК 0,5 (10 сут)ФАНТЭЛЬ 0014, шт", "replace": "Торт \"Медовик\" 0,5"}, {"find": "МЕДОВИК 0,5 ПБК (21 сут) ФАНТЭЛЬ, шт", "replace": "Торт \"Медовик\" 0,5 ПБК"}, {"find": "МИНИСТЕРСКИЙ 1,0 (15 суток) ФАНТЭЛЬ, шт", "replace": "Торт \"Министерский\" 1,0"}, {"find": "МИНИСТЕРСКИЙ 1,95 (15 суток) ФАНТЭЛЬ, шт", "replace": "Торт \"Министерский\" 1,95"}, {"find": "Осенний поцелуй 0,6 (7 сут)ФАНТЭЛЬ, шт", "replace": "Торт \"Осенний поцелуй\" 0,6"}, {"find": "пир. КИЕВСКОЕ 0,3 гр. (15 суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Киевское\" 0,3 (15 сут.)"}, {"find": "ПЧЕЛКА 0,750 (15 суток) ФАНТЭЛЬ, шт", "replace": "Торт \"Пчелка\" 0,75"}, {"find": "РЫЖИЙ 0,500 ПБК (21 суток) ФАНТЭЛЬ, шт", "replace": "Торт \"Рыжий\" 0,5 ПБК"}, {"find": "Соблазн 0,57 ПБК (21 суток) ФАНТЭЛЬ, шт", "replace": "Торт \"Соблазн\" 0,57 ПБК"}, {"find": "Черный принц 0,640  (10 сут) ФАНТЭЛЬ, шт", "replace": "Торт \"Черный принц\" 0,64"}, {"find": "Джелато клубника 0,65  ФАНТЭЛЬ, шт", "replace": "Торт \"Джелато клубника\" 0,65"}, {"find": "Джелато лимон 0,65  ФАНТЭЛЬ, шт", "replace": "Торт \"Джелато лимон\" 0,65"}, {"find": "Медовик 0,95 (НОВЫЙ штрихкод) (10 сут) ФАНТЭЛЬ, шт", "replace": "Торт \"Медовик\" 0,95"}, {"find": "Маленькое Лето 0,450 ФАНТЕЛЬ , шт", "replace": "Торт \"Маленькое лето\" 0,45"}, {"find": "Джелато лимон 0,65  15 сут ФАНТЭЛЬ, шт", "replace": "Торт \"Джелато лимон\" 0,65"}, {"find": "Маленькое Лето 0,450 15 сут ФАНТЕЛЬ , шт", "replace": "Торт \"Маленькое лето\" 0,45"}, {"find": "Джелато клубника 0,65  15 сут ФАНТЭЛЬ, шт", "replace": "Торт \"Джелато клубника\" 0,65"}, {"find": "Опера 0,5 ФАНТЭЛЬ, шт", "replace": "Торт \"Опера\" 0,5"}, {"find": "Молочная девочка 0,32 ФАНТЭЛЬ, шт", "replace": "Торт \"Молочная девочка\" 0,32"}, {"find": "РЫЖИЙ 0,500 (10 суток), шт", "replace": "Торт \"Рыжий\" 0,5"}, {"find": "пир. Домовенок 0,42 Delisse (15 сут), шт", "replace": "Пирожное \"DELISSE Домовенок\" 0,42"}, {"find": "Молочная девочка 0,32  (10 сут (ФАНТЭЛЬ, шт", "replace": "Торт \"Молочная девочка\" 0,32"}, {"find": "пир. Тирамису 0,15 (10 суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Тирамису\" 0,15"}, {"find": "Морковный 0,6 ФАНТЭЛЬ 10сут, шт", "replace": "Торт \"Морковный\" 0,6"}, {"find": "Наполеон 0,6 (ФАНТЭЛЬ), шт", "replace": "Торт \"Наполеон\" 0,6"}, {"find": "Ореховый рай 0,3 (10 суток), шт", "replace": "Торт \"Ореховый рай\" 0,3 (10 сут.)"}, {"find": "пир. Шоколадное вишня 0,12 ПБК (21 суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Шоколадное\" вишня 0,120 ПБК"}, {"find": "ПЧЕЛКА 0,3 (15 суток) ФАНТЭЛЬ, шт", "replace": "Торт \"Пчелка\" 0,3 (15 сут.)"}, {"find": "Наполеон 0,6 (ФАНТЭЛЬ) 15 сут, шт", "replace": "Торт \"Наполеон\" 0,6"}, {"find": "Опера 0,5 ФАНТЭЛЬ 10 сут, шт", "replace": "Торт \"Опера\" 0,5"}, {"find": "МИНДАЛЬНЫЙ 0,5  (10 суток) ФАНТЭЛЬ, шт", "replace": "Торт \"Миндальный\" 0,5"}, {"find": "пир. Колибри 0,1 гр. ПБК ФАНТЭЛЬ, шт", "replace": "Пирожное \"Колибри\" 0,1 ПБК"}, {"find": "Купеческий 0,65 ФАНТЭЛЬ, шт", "replace": "Торт \"Купеческий\" 0,65"}, {"find": "Купеческий 0,65 (10 суток) ФАНТЭЛЬ, шт", "replace": "Торт \"Купеческий\" 0,65"}, {"find": "Морковный 0,6 ФАНТЭЛЬ 10 сут, шт", "replace": "Торт \"Морковный\" 0,6"}, {"find": "пир. КИЕВСКОЕ 0,3 (15 суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Киевское\" 0,3 (15 сут.)"}, {"find": "пир. Колибри 0,1 ПБК (21 сут) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Колибри\" 0,1 ПБК"}, {"find": "Киевский 0,55  (15 сут), шт", "replace": "Торт \"Киевский\" 0,55"}, {"find": "пир. ЛЮБИМЧИК ПАШКА 0,36 ( суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Любимчик Пашка\" 0,36"}, {"find": "пир. МИНДАЛЬНОЕ 0,25 ( суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Миндальное\" 0,25"}, {"find": "пир. Сливочное суфле КЛУБНИКА 0,11 ( суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Сливочное суфле клубника\" 0,11"}, {"find": "пир. Сливочное суфле МАНГО-МАРАКУЙЯ 0,11 ( суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Сливочное суфле манго-маракуйя\" 0,11"}, {"find": "пир. СЧАСТЬЕ ЕСТЬ 0,3 ( суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Счастье есть\" 0,3"}, {"find": "пир. ЧЕРНИЧНЫЙ МУСС 0,3 ( суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Черничный мусс\" 0,3"}, {"find": "пир. ШОКОЛАДНЫЙ МУСС 0,3 ( суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Шоколадный мусс\" 0,3"}, {"find": "пир. ЛЮБИМЧИК ПАШКА 0,36 ( 15 суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Любимчик Пашка\" 0,36"}, {"find": "пир. МИНДАЛЬНОЕ 0,25 ( 10 суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Миндальное\" 0,25"}, {"find": "пир. Сливочное суфле КЛУБНИКА 0,11 (15 суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Сливочное суфле клубника\" 0,11"}, {"find": "пир. Сливочное суфле МАНГО-МАРАКУЙЯ 0,11 (15 суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Сливочное суфле манго-маракуйя\" 0,11"}, {"find": "пир. СЧАСТЬЕ ЕСТЬ 0,3 ( 10 суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Счастье есть\" 0,3"}, {"find": "пир. ЧЕРНИЧНЫЙ МУСС 0,3 ( 7 суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Черничный мусс\" 0,3"}, {"find": "пир. ШОКОЛАДНЫЙ МУСС 0,3 ( 10суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Шоколадный мусс\" 0,3"}, {"find": "Этикет - дата \"Фантэль\" 32,5*23,5 золотая, шт", "replace": "Этикет - дата \"Фантэль\" 32,5*23,5 золотая, шт"}, {"find": "пир. ЖЕЛАНИЕ 0,32 ( 7 суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Желание\" 0,32"}, {"find": "пир. ШОКОЛАДНЫЙ МУСС 0,3 ( 10 суток) ФАНТЭЛЬ, шт", "replace": "Пирожное \"Шоколадный мусс\" 0,3"}, {"find": "ВОСТОЧНАЯ СКАЗКА 0,800 (10 сут) ФАНТЭЛЬ, шт", "replace": "Торт \"Восточная сказка\" 0,8"}, {"find": "Киевский 0,55  (15 сут) ФАНТЭЛЬ, шт", "replace": "Торт \"Киевский\" 0,55"}];
@@ -300,6 +305,7 @@ function saveForm(){
   };
   try{
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    document.getElementById("savedState").textContent = "Сохранено в браузере · " + new Date().toLocaleTimeString("ru-RU", {hour:"2-digit", minute:"2-digit"});
   }catch(e){
     console.warn("Не удалось сохранить данные в браузере", e);
   }
@@ -359,9 +365,9 @@ function exportExcel(){
 
 function copyDeficit(){
   const deficit=rows.filter(r=>r.final<0);
-  if(!deficit.length){alert("Дефицита нет.");return;}
+  if(!deficit.length){showToast("Дефицита нет");return;}
   const text=deficit.map(r=>`${r.name} — дефицит ${fmt(Math.abs(r.final))}`).join("\n");
-  const done=()=>alert(`Скопировано позиций: ${deficit.length}`);
+  const done=()=>showToast(`Скопировано позиций: ${deficit.length}`);
   if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));}else fallbackCopy(text,done);
 }
 
@@ -434,10 +440,40 @@ function calculate(){
 
   document.getElementById("results").classList.remove("hidden");
   render();
+  document.getElementById("results").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function normalizeSearchText(s){
+  return String(s||"").toLocaleLowerCase("ru-RU").replace(/ё/g,"е").replace(/[^\p{L}\p{N}]+/gu," ").replace(/\s+/g," ").trim();
+}
+
+function showToast(message){
+  const t=document.getElementById("toast");
+  t.textContent=message;
+  t.classList.add("show");
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer=setTimeout(()=>t.classList.remove("show"),1800);
+}
+
+function updateSortHeaders(){
+  document.querySelectorAll("th.sortable").forEach(th=>{
+    th.classList.toggle("sort-active", th.dataset.sort===sortKey);
+    th.dataset.arrow = (th.dataset.sort===sortKey && sortDir==="desc") ? "↓" : "↑";
+  });
+}
+
+function updateTotals(){
+  const sum=k=>rows.reduce((acc,r)=>acc+(Number(r[k])||0),0);
+  document.getElementById("sumStock").textContent=fmt(sum("stock"));
+  document.getElementById("sumReceipt").textContent=fmt(sum("receipt"));
+  document.getElementById("sumOrder").textContent=fmt(sum("order"));
+  document.getElementById("sumAfterOrder").textContent=fmt(sum("afterOrder"));
+  document.getElementById("sumSales").textContent=fmt(sum("sales"));
+  document.getElementById("sumFinal").textContent=fmt(sum("final"));
 }
 
 function render(){
-  const q=document.getElementById("search").value.trim().toLocaleLowerCase("ru-RU");
+  const q=normalizeSearchText(document.getElementById("search").value);
   const dir=document.getElementById("direction").value==="asc"?1:-1;
 
   let data=rows.filter(r=>{
@@ -446,7 +482,7 @@ function render(){
       (currentFilter==="deficit"&&st==="Дефицит") ||
       (currentFilter==="enough"&&st==="Достаточно") ||
       (currentFilter==="zero"&&st==="Нулевой остаток");
-    return okFilter && r.name.toLocaleLowerCase("ru-RU").includes(q);
+    return okFilter && normalizeSearchText(r.name).includes(q);
   });
 
   data.sort((a,b)=>{
@@ -454,6 +490,9 @@ function render(){
     if(typeof av==="string") return av.localeCompare(bv,"ru",{sensitivity:"base"})*dir;
     return (av-bv)*dir;
   });
+
+  updateTotals();
+  updateSortHeaders();
 
   const tbody=document.getElementById("tbody");
   tbody.innerHTML="";
@@ -482,10 +521,12 @@ document.getElementById("clearData").addEventListener("click",()=>clearData(true
   el.addEventListener("change",saveForm);
 });
 window.addEventListener("beforeunload",saveForm);
+document.querySelectorAll("textarea").forEach(el=>el.addEventListener("keydown",e=>{if(e.ctrlKey&&e.key==="Enter"){e.preventDefault();calculate();}}));
 restoreForm();
+restoreDensity();
 document.getElementById("search").addEventListener("input",render);
 document.getElementById("sort").addEventListener("change",e=>{sortKey=e.target.value;render()});
-document.getElementById("direction").addEventListener("change",render);
+document.getElementById("direction").addEventListener("change",e=>{sortDir=e.target.value;render()});
 
 document.querySelectorAll(".filters button").forEach(btn=>{
   btn.addEventListener("click",()=>{
@@ -497,8 +538,14 @@ document.querySelectorAll(".filters button").forEach(btn=>{
 });
 document.querySelectorAll("th[data-sort]").forEach(th=>{
   th.addEventListener("click",()=>{
-    sortKey=th.dataset.sort;
+    if(sortKey===th.dataset.sort){
+      sortDir = sortDir === "asc" ? "desc" : "asc";
+    }else{
+      sortKey=th.dataset.sort;
+      sortDir="asc";
+    }
     document.getElementById("sort").value=sortKey;
+    document.getElementById("direction").value=sortDir;
     render();
   });
 });
