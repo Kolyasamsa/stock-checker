@@ -459,10 +459,6 @@ document.getElementById("check").addEventListener("click",calculate);
 document.getElementById("copyDeficit").addEventListener("click",copyDeficit);
 document.getElementById("exportExcel").addEventListener("click",exportExcel);
 document.getElementById("clearData").addEventListener("click",()=>clearData(true));
-document.getElementById("newDay").addEventListener("click",()=>{
-  if(!confirm("Начать новый день? Все введённые остатки, заказ, приход и реализация будут очищены."))return;
-  clearData(false);localStorage.removeItem("stockCheckerData");
-});
 ["stock","orders","receipt","sales"].forEach(id=>document.getElementById(id).addEventListener("input",saveForm));
 restoreForm();
 document.getElementById("search").addEventListener("input",render);
