@@ -24,18 +24,18 @@ button:hover{background:#244bd4}
 .summary{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:18px 0}
 .stat{background:#fff;border:1px solid #e3e7ef;border-radius:12px;padding:15px}
 .stat .n{font-size:25px;font-weight:800;margin-top:5px}
-.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:16px 0;position:sticky;top:0;z-index:10;background:#f5f7fb;padding:10px 0;border-bottom:1px solid #e3e7ef}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:16px 0;background:#f5f7fb;padding:10px 0;border-bottom:1px solid #e3e7ef}
 input,select{border:1px solid #cfd6e4;border-radius:9px;padding:10px 12px;background:#fff}
 input{min-width:280px}
 .filters button{background:#fff;color:#344054;border:1px solid #d0d5dd;padding:9px 13px}
 .filters button.active{background:#315efb;color:#fff;border-color:#315efb}
-.tablebox{overflow:auto;background:#fff;border:1px solid #e3e7ef;border-radius:12px}
+.tablebox{overflow:auto;max-height:70vh;background:#fff;border:1px solid #e3e7ef;border-radius:12px}
 table{border-collapse:collapse;width:100%;min-width:900px;font-size:13px}
 th,td{padding:6px 8px;border-bottom:1px solid #edf0f5;text-align:right;white-space:nowrap;line-height:1.2}
 th:first-child,td:first-child{text-align:left}
 th{font-weight:700}
 th:first-child,td:first-child{text-align:left}
-th{background:#f8f9fc;cursor:pointer;position:sticky;top:0}
+th{background:#f8f9fc;cursor:pointer;position:sticky;top:0;z-index:2}
 tr:last-child td{border-bottom:0}
 .badge{display:inline-block;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:700}
 .ok{background:#ecfdf3;color:#067647}.bad{background:#fef3f2;color:#b42318}.zero{background:#fff7ed;color:#c2410c}.negative-final{color:#b42318;font-weight:800}
@@ -103,6 +103,7 @@ tr:last-child td{border-bottom:0}
       <select id="sort">
         <option value="name">Сортировка: номенклатура</option>
         <option value="stock">Сортировка: остаток</option>
+        <option value="receipt">Сортировка: приход</option>
         <option value="order">Сортировка: заказано</option>
         <option value="afterOrder">Сортировка: после заказа</option>
         <option value="sales">Сортировка: реализация</option>
@@ -309,6 +310,21 @@ function saveForm(){
   }catch(e){
     console.warn("Не удалось сохранить данные в браузере", e);
   }
+}
+
+function applyDensity(mode){
+  const table=document.querySelector("table");
+  if(!table)return;
+  table.classList.toggle("compact-mode", mode === "compact");
+  document.getElementById("densityCompact").classList.toggle("active", mode === "compact");
+  document.getElementById("densityNormal").classList.toggle("active", mode === "normal");
+  try{localStorage.setItem("stockCheckerDensity", mode);}catch(e){}
+}
+
+function restoreDensity(){
+  let mode="compact";
+  try{mode=localStorage.getItem("stockCheckerDensity") || "compact";}catch(e){}
+  applyDensity(mode === "normal" ? "normal" : "compact");
 }
 
 function restoreForm(){
@@ -522,6 +538,8 @@ document.getElementById("clearData").addEventListener("click",()=>clearData(true
 });
 window.addEventListener("beforeunload",saveForm);
 document.querySelectorAll("textarea").forEach(el=>el.addEventListener("keydown",e=>{if(e.ctrlKey&&e.key==="Enter"){e.preventDefault();calculate();}}));
+document.getElementById("densityCompact").addEventListener("click",()=>applyDensity("compact"));
+document.getElementById("densityNormal").addEventListener("click",()=>applyDensity("normal"));
 restoreForm();
 restoreDensity();
 document.getElementById("search").addEventListener("input",render);
