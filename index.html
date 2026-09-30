@@ -30,8 +30,10 @@ input{min-width:280px}
 .filters button{background:#fff;color:#344054;border:1px solid #d0d5dd;padding:9px 13px}
 .filters button.active{background:#315efb;color:#fff;border-color:#315efb}
 .tablebox{overflow:auto;background:#fff;border:1px solid #e3e7ef;border-radius:12px}
-table{border-collapse:collapse;width:100%;min-width:1000px}
-th,td{padding:11px 12px;border-bottom:1px solid #edf0f5;text-align:right;white-space:nowrap}
+table{border-collapse:collapse;width:100%;min-width:900px;font-size:13px}
+th,td{padding:6px 8px;border-bottom:1px solid #edf0f5;text-align:right;white-space:nowrap;line-height:1.2}
+th:first-child,td:first-child{text-align:left}
+th{font-weight:700}
 th:first-child,td:first-child{text-align:left}
 th{background:#f8f9fc;cursor:pointer;position:sticky;top:0}
 tr:last-child td{border-bottom:0}
@@ -113,6 +115,7 @@ tr:last-child td{border-bottom:0}
         <thead><tr>
           <th data-sort="name">Номенклатура</th>
           <th data-sort="stock">Остаток</th>
+          <th data-sort="receipt">Приход</th>
           <th data-sort="order">Заказано</th>
           <th data-sort="afterOrder">После заказа</th>
           <th data-sort="sales">Реализация</th>
@@ -268,7 +271,7 @@ function fmt(n){
 }
 
 function status(row){
-  if(row.stock === 0) return ["Нулевой остаток","zero"];
+  if((row.stock + row.receipt) === 0) return ["Нулевой остаток","zero"];
   if(row.final < 0) return ["Дефицит","bad"];
   return ["Достаточно","ok"];
 }
@@ -297,13 +300,15 @@ function calculate(){
   rows = [];
   for(const name of allNames){
     const stockQty = Math.max(0, stock.get(name)||0);
+    const receiptQty = receipt.get(name)||0;
+    const effectiveStock = stockQty + receiptQty;
     const orderQty = orders.get(name)||0;
     const salesQty = sales.get(name)||0;
     rows.push({
-      name, stock:stockQty, order:orderQty,
-      afterOrder:stockQty-orderQty,
+      name, stock:stockQty, receipt:receiptQty, order:orderQty,
+      afterOrder:effectiveStock-orderQty,
       sales:salesQty,
-      final:stockQty-orderQty-salesQty
+      final:effectiveStock-orderQty-salesQty
     });
   }
 
@@ -362,7 +367,7 @@ function render(){
     const [st,cls]=status(r);
     const tr=document.createElement("tr");
     tr.innerHTML=`<td>${escapeHtml(r.name)}</td>
-      <td>${fmt(r.stock)}</td><td>${fmt(r.order)}</td><td>${fmt(r.afterOrder)}</td>
+      <td>${fmt(r.stock)}</td><td>${fmt(r.receipt)}</td><td>${fmt(r.order)}</td><td>${fmt(r.afterOrder)}</td>
       <td>${fmt(r.sales)}</td><td class="${r.final < 0 ? "negative-final" : ""}">${fmt(r.final)}</td>
       <td><span class="badge ${cls}">${st}</span></td>`;
     tbody.appendChild(tr);
