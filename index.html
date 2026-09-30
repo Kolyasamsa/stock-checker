@@ -43,6 +43,20 @@ tr:last-child td{border-bottom:0}
 .notfound ul{margin:8px 0 0;padding-left:22px}
 @media(max-width:900px){.inputs{grid-template-columns:1fr}.summary{grid-template-columns:repeat(2,1fr)}.wrap{padding:15px}}
 .actions{flex-wrap:wrap}.secondary{background:#fff;color:#344054;border:1px solid #d0d5dd}.secondary:hover{background:#f8f9fc}.danger{background:#fff;color:#b42318;border:1px solid #f1b8b3}.danger:hover{background:#fef3f2}.warningbox{margin:16px 0;background:#fffaf0;border:1px solid #f5d48a;border-radius:12px;padding:14px 16px}.warningbox b{display:block;margin-bottom:7px}.warningbox ul{margin:0;padding-left:22px}.export-actions{display:flex;gap:8px;flex-wrap:wrap}th{z-index:2} .density-toggle{display:flex;align-items:center;gap:4px;background:#fff;border:1px solid #d0d5dd;border-radius:9px;padding:3px}.density-toggle button{background:transparent;color:#344054;padding:7px 10px;font-size:13px}.density-toggle button.active{background:#315efb;color:#fff}.compact-mode th,.compact-mode td{padding:2px 6px;font-size:13px;line-height:1.1}.table-total td{font-weight:800;background:#f8f9fc;border-top:2px solid #dfe4ec}.sortable::after{content:" ↕";color:#98a2b3;font-weight:400}.sortable.sort-active::after{content:" " attr(data-arrow);color:#315efb;font-weight:800}.saved-state{font-size:12px;color:#667085}.toast{position:fixed;right:22px;bottom:22px;background:#172033;color:#fff;padding:11px 15px;border-radius:10px;box-shadow:0 8px 25px #0002;opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none;z-index:50}.toast.show{opacity:1;transform:translateY(0)}
+
+.mode-toggle{float:right;background:#fff;border:1px solid #d0d5dd;color:#344054;border-radius:8px;padding:5px 9px;font-size:12px;cursor:pointer}
+.mode-toggle:hover{background:#f8f9fc}
+.field-clear{float:right;margin-right:6px;width:27px;height:27px;padding:0;border:1px solid #d0d5dd;border-radius:8px;background:#fff;color:#667085;font-size:18px;line-height:24px;cursor:pointer}
+.field-clear:hover{background:#fef3f2;color:#b42318;border-color:#f3b5b0}
+.editor-wrap{display:none;margin-top:8px;border:1px solid #dfe4ec;border-radius:10px;overflow:auto;background:#fff;max-height:360px}
+.editor-wrap.open{display:block}
+.input-table{border-collapse:collapse;width:100%;min-width:420px;font-size:13px}
+.input-table th,.input-table td{padding:5px 7px;border-bottom:1px solid #edf0f5;white-space:nowrap}
+.input-table th{background:#f8f9fc;text-align:left;position:sticky;top:0;z-index:1}
+.input-table td:last-child,.input-table th:last-child{text-align:right;width:120px}
+.input-table input{width:100%;box-sizing:border-box;border:1px solid transparent;background:transparent;border-radius:5px;padding:4px 5px;font:13px/1.2 inherit}
+.input-table input:hover,.input-table input:focus{border-color:#cfd6e4;background:#fff;outline:none}
+.editor-empty{padding:14px;color:#667085;font-size:13px}
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
@@ -54,32 +68,31 @@ tr:last-child td{border-bottom:0}
 
   <div class="inputs">
     <div class="card">
-      <label>Остатки на сегодня <span class="req">*</span></label>
+      <label>Остатки на сегодня <span class="req">*</span><button type="button" class="field-clear" data-clear-field="stock" title="Очистить поле">×</button><button type="button" class="mode-toggle" data-editor="stock">▦ Таблица</button></label>
       <textarea id="stock" placeholder="| Магнит | 13 816,000 |
 | --- | --- |
 | БЛИННЫЙ 0,6 (10 сут) ФАНТЭЛЬ | 172,000 |
-| Итог | 13 816,000 |"></textarea>
+| Итог | 13 816,000 |"></textarea><div class="editor-wrap" id="stockEditor"><table class="input-table"><thead><tr><th>Номенклатура</th><th>Количество</th></tr></thead><tbody></tbody></table></div>
     </div>
     <div class="card">
-      <label>Заказано <span class="req">*</span></label>
+      <label>Заказано <span class="req">*</span><button type="button" class="field-clear" data-clear-field="orders" title="Очистить поле">×</button><button type="button" class="mode-toggle" data-editor="orders">▦ Таблица</button></label>
       <textarea id="orders" placeholder="| Магнит | 5 000,000 |
 | --- | --- |
 | БЛИННЫЙ 0,6 (10 сут) ФАНТЭЛЬ | 20,000 |
-| Итог | 5 000,000 |"></textarea>
+| Итог | 5 000,000 |"></textarea><div class="editor-wrap" id="ordersEditor"><table class="input-table"><thead><tr><th>Номенклатура</th><th>Количество</th></tr></thead><tbody></tbody></table></div>
     </div>
     <div class="card">
-      <label>Приход <span style="font-weight:400;color:#667085">(необязательно)</span></label>
-      <textarea id="receipt" placeholder="Можно оставить пустым"></textarea>
+      <label>Приход <span style="font-weight:400;color:#667085">(необязательно)</span><button type="button" class="field-clear" data-clear-field="receipt" title="Очистить поле">×</button><button type="button" class="mode-toggle" data-editor="receipt">▦ Таблица</button></label>
+      <textarea id="receipt" placeholder="Можно оставить пустым"></textarea><div class="editor-wrap" id="receiptEditor"><table class="input-table"><thead><tr><th>Номенклатура</th><th>Количество</th></tr></thead><tbody></tbody></table></div>
     </div>
     <div class="card">
-      <label>Реализация с предыдущих дней <span style="font-weight:400;color:#667085">(необязательно)</span></label>
-      <textarea id="sales" placeholder="Можно оставить пустым"></textarea>
+      <label>Реализация с предыдущих дней <span style="font-weight:400;color:#667085">(необязательно)</span><button type="button" class="field-clear" data-clear-field="sales" title="Очистить поле">×</button><button type="button" class="mode-toggle" data-editor="sales">▦ Таблица</button></label>
+      <textarea id="sales" placeholder="Можно оставить пустым"></textarea><div class="editor-wrap" id="salesEditor"><table class="input-table"><thead><tr><th>Номенклатура</th><th>Количество</th></tr></thead><tbody></tbody></table></div>
     </div>
   </div>
 
   <div class="actions">
     <button id="check">Проверить остатки</button>
-    <button id="clearData" class="secondary">Очистить данные</button>
     <span id="error" class="error"></span><span id="savedState" class="saved-state"></span>
   </div>
 
@@ -327,16 +340,6 @@ function restoreForm(){
   }
 }
 
-function clearData(showConfirm=true){
-  if(showConfirm&&!confirm("Очистить введённые данные?"))return;
-  ["stock","orders","receipt","sales"].forEach(id=>document.getElementById(id).value="");
-  localStorage.removeItem(STORAGE_KEY);
-  localStorage.removeItem("stockCheckerData");
-  rows=[];
-  document.getElementById("results").classList.add("hidden");
-  document.getElementById("error").textContent="";
-}
-
 function renderWarnings(stockText,missing){
   const warnings=[];
   let negativeCount=0;
@@ -376,6 +379,108 @@ function copyDeficit(){
 
 function fallbackCopy(text,done){
   const ta=document.createElement("textarea");ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();done();
+}
+
+
+const editorState={stock:false,orders:false,receipt:false,sales:false};
+
+function editorRowsFromText(text){
+  const rows=[];
+  const lines=String(text||"").split(/\r?\n/);
+  for(const raw of lines){
+    const line=raw.trim();
+    if(!line) continue;
+    let name="", qty="";
+    if(line.includes("|")){
+      const cells=line.split("|").map(x=>x.trim());
+      if(cells.length<3) continue;
+      name=cells[1]; qty=cells[2];
+    }else if(raw.includes("\t")){
+      const cells=raw.split("\t").map(x=>x.trim());
+      if(cells.length<2) continue;
+      name=cells[0]; qty=cells[cells.length-1];
+    }else{
+      const m=line.match(/^(.*?)\s+(-?\d[\d\s\u00A0]*(?:[.,]\d+)?)\s*$/);
+      if(!m) continue;
+      name=m[1].trim(); qty=m[2].trim();
+    }
+    if(!name || /^-+$/.test(name) || /^:?-+:?$/.test(name) || /^итог$/i.test(name)) continue;
+    if(parseNumber(qty)===null) continue;
+    if(rows.length===0 && looksLikeHeader(name)) continue;
+    rows.push({name,qty});
+  }
+  return rows;
+}
+
+function renderEditor(id){
+  const ta=document.getElementById(id);
+  const box=document.getElementById(id+"Editor");
+  const tbody=box.querySelector("tbody");
+  const rows=editorRowsFromText(ta.value);
+  tbody.innerHTML="";
+  if(!rows.length){
+    tbody.innerHTML='<tr><td colspan="2" class="editor-empty">Нет распознанных строк. Переключитесь обратно в текстовый режим и вставьте данные.</td></tr>';
+    return;
+  }
+  rows.forEach((r,i)=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td><input data-col="name" data-row="${i}" value="${escapeHtml(r.name)}"></td><td><input data-col="qty" data-row="${i}" value="${escapeHtml(r.qty)}"></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function syncEditorToText(id){
+  const box=document.getElementById(id+"Editor");
+  const rows=[...box.querySelectorAll("tbody tr")].map(tr=>{
+    const inputs=tr.querySelectorAll("input");
+    return inputs.length?{name:inputs[0].value.trim(),qty:inputs[1].value.trim()}:null;
+  }).filter(r=>r && r.name);
+  document.getElementById(id).value=rows.map(r=>`${r.name}\t${r.qty}`).join("\n");
+  saveForm();
+}
+
+function toggleEditor(id){
+  const ta=document.getElementById(id);
+  const box=document.getElementById(id+"Editor");
+  const btn=document.querySelector(`.mode-toggle[data-editor="${id}"]`);
+  if(!editorState[id]){
+    renderEditor(id);
+    ta.style.display="none";
+    box.classList.add("open");
+    btn.textContent="▤ Текст";
+    editorState[id]=true;
+  }else{
+    syncEditorToText(id);
+    ta.style.display="";
+    box.classList.remove("open");
+    btn.textContent="▦ Таблица";
+    editorState[id]=false;
+  }
+}
+
+function closeEditorsForClear(){
+  Object.keys(editorState).forEach(id=>{
+    editorState[id]=false;
+    document.getElementById(id).style.display="";
+    document.getElementById(id+"Editor").classList.remove("open");
+    document.querySelector(`.mode-toggle[data-editor="${id}"]`).textContent="▦ Таблица";
+    document.querySelector(`#${id}Editor tbody`).innerHTML="";
+  });
+}
+
+function clearSingleField(id){
+  const ta=document.getElementById(id);
+  ta.value="";
+  const box=document.getElementById(id+"Editor");
+  const btn=document.querySelector(`.mode-toggle[data-editor="${id}"]`);
+  if(editorState[id]){
+    box.querySelector("tbody").innerHTML='<tr><td colspan="2" class="editor-empty">Нет данных</td></tr>';
+  }
+  saveForm();
+  rows=[];
+  document.getElementById("results").classList.add("hidden");
+  document.getElementById("error").textContent="";
+  if(btn && editorState[id]) btn.textContent="▤ Текст";
 }
 
 function calculate(){
@@ -517,7 +622,6 @@ function escapeHtml(s){
 document.getElementById("check").addEventListener("click",calculate);
 document.getElementById("copyDeficit").addEventListener("click",copyDeficit);
 document.getElementById("exportExcel").addEventListener("click",exportExcel);
-document.getElementById("clearData").addEventListener("click",()=>clearData(true));
 ["stock","orders","receipt","sales"].forEach(id=>{
   const el=document.getElementById(id);
   el.addEventListener("input",saveForm);
@@ -527,6 +631,15 @@ window.addEventListener("beforeunload",saveForm);
 document.querySelectorAll("textarea").forEach(el=>el.addEventListener("keydown",e=>{if(e.ctrlKey&&e.key==="Enter"){e.preventDefault();calculate();}}));
 document.getElementById("densityCompact").addEventListener("click",()=>applyDensity("compact"));
 document.getElementById("densityNormal").addEventListener("click",()=>applyDensity("normal"));
+document.querySelectorAll(".mode-toggle").forEach(btn=>btn.addEventListener("click",()=>toggleEditor(btn.dataset.editor)));
+Object.keys(editorState).forEach(id=>{
+  const box=document.getElementById(id+"Editor");
+  box.addEventListener("input",()=>syncEditorToText(id));
+});
+document.querySelectorAll(".field-clear").forEach(btn=>{
+  btn.addEventListener("click",()=>clearSingleField(btn.dataset.clearField));
+});
+
 restoreForm();
 restoreDensity();
 document.getElementById("search").addEventListener("input",render);
