@@ -27,7 +27,7 @@ button:hover{background:#244bd4}
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:16px 0;background:#f5f7fb;padding:10px 0;border-bottom:1px solid #e3e7ef}
 input,select{border:1px solid #cfd6e4;border-radius:9px;padding:10px 12px;background:#fff}
 input{min-width:280px}
-.filters button{background:#fff;color:#344054;border:1px solid #d0d5dd;padding:9px 13px}
+.filters button{background:#fff;color:#344054;border:1px solid #d0d5dd;padding:0 14px;height:38px;min-width:118px}.toolbar button{height:38px;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;line-height:1}.density-toggle{height:38px;align-items:center}.density-toggle button{height:30px;min-width:96px;padding:0 12px}.export-actions button{min-width:180px}
 .filters button.active{background:#315efb;color:#fff;border-color:#315efb}
 .tablebox{overflow:auto;max-height:70vh;background:#fff;border:1px solid #e3e7ef;border-radius:12px}
 table{border-collapse:collapse;width:100%;min-width:900px;font-size:13px}
@@ -42,7 +42,7 @@ tr:last-child td{border-bottom:0}
 .notfound{margin-top:18px}
 .notfound ul{margin:8px 0 0;padding-left:22px}
 @media(max-width:900px){.inputs{grid-template-columns:1fr}.summary{grid-template-columns:repeat(2,1fr)}.wrap{padding:15px}}
-.actions{flex-wrap:wrap}.secondary{background:#fff;color:#344054;border:1px solid #d0d5dd}.secondary:hover{background:#f8f9fc}.danger{background:#fff;color:#b42318;border:1px solid #f1b8b3}.danger:hover{background:#fef3f2}.warningbox{margin:16px 0;background:#fffaf0;border:1px solid #f5d48a;border-radius:12px;padding:14px 16px}.warningbox b{display:block;margin-bottom:7px}.warningbox ul{margin:0;padding-left:22px}.export-actions{display:flex;gap:8px;flex-wrap:wrap}th{z-index:2} .density-toggle{display:flex;gap:4px;background:#fff;border:1px solid #d0d5dd;border-radius:9px;padding:3px}.density-toggle button{background:transparent;color:#344054;padding:7px 10px;font-size:13px}.density-toggle button.active{background:#315efb;color:#fff}.compact-mode th,.compact-mode td{padding:2px 6px;font-size:13px;line-height:1.1}.table-total td{font-weight:800;background:#f8f9fc;border-top:2px solid #dfe4ec}.sortable::after{content:" ↕";color:#98a2b3;font-weight:400}.sortable.sort-active::after{content:" " attr(data-arrow);color:#315efb;font-weight:800}.saved-state{font-size:12px;color:#667085}.toast{position:fixed;right:22px;bottom:22px;background:#172033;color:#fff;padding:11px 15px;border-radius:10px;box-shadow:0 8px 25px #0002;opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none;z-index:50}.toast.show{opacity:1;transform:translateY(0)}
+.actions{flex-wrap:wrap}.secondary{background:#fff;color:#344054;border:1px solid #d0d5dd}.secondary:hover{background:#f8f9fc}.danger{background:#fff;color:#b42318;border:1px solid #f1b8b3}.danger:hover{background:#fef3f2}.warningbox{margin:16px 0;background:#fffaf0;border:1px solid #f5d48a;border-radius:12px;padding:14px 16px}.warningbox b{display:block;margin-bottom:7px}.warningbox ul{margin:0;padding-left:22px}.export-actions{display:flex;gap:8px;flex-wrap:wrap}th{z-index:2} .density-toggle{display:flex;align-items:center;gap:4px;background:#fff;border:1px solid #d0d5dd;border-radius:9px;padding:3px}.density-toggle button{background:transparent;color:#344054;padding:7px 10px;font-size:13px}.density-toggle button.active{background:#315efb;color:#fff}.compact-mode th,.compact-mode td{padding:2px 6px;font-size:13px;line-height:1.1}.table-total td{font-weight:800;background:#f8f9fc;border-top:2px solid #dfe4ec}.sortable::after{content:" ↕";color:#98a2b3;font-weight:400}.sortable.sort-active::after{content:" " attr(data-arrow);color:#315efb;font-weight:800}.saved-state{font-size:12px;color:#667085}.toast{position:fixed;right:22px;bottom:22px;background:#172033;color:#fff;padding:11px 15px;border-radius:10px;box-shadow:0 8px 25px #0002;opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none;z-index:50}.toast.show{opacity:1;transform:translateY(0)}
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
@@ -477,7 +477,7 @@ function updateTotals(){
 
 function render(){
   const q=normalizeSearchText(document.getElementById("search").value);
-  const dir=document.getElementById("direction").value==="asc"?1:-1;
+  const dir=sortDir==="asc"?1:-1;
 
   let data=rows.filter(r=>{
     const [st]=status(r);
