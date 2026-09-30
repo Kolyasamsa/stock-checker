@@ -141,22 +141,68 @@ function parseNumber(v){
   return Number.isFinite(n) ? n : null;
 }
 
+function looksLikeHeader(name){
+  const s = String(name || "").trim().toLocaleLowerCase("ru-RU");
+  return s === "итог" ||
+    s === "магнит" ||
+    s.includes("торговый дом") ||
+    s.includes("логистика") ||
+    s === "магазин" ||
+    s === "наименование";
+}
+
 function parseTable(text){
   const map = new Map();
   const lines = String(text || "").split(/\r?\n/);
-  for(const raw of lines){
+  let parsedDataRows = 0;
+
+  for(let lineIndex = 0; lineIndex < lines.length; lineIndex++){
+    const raw = lines[lineIndex];
     const line = raw.trim();
-    if(!line || !line.includes("|")) continue;
-    const cells = line.split("|").map(x=>x.trim());
-    if(cells.length < 3) continue;
-    const name = cells[1];
-    const qty = cells[2];
+    if(!line) continue;
+
+    let name = "";
+    let qty = "";
+
+    // 1. Markdown / pipe table:
+    if(line.includes("|")){
+      const cells = line.split("|").map(x=>x.trim());
+      if(cells.length < 3) continue;
+      name = cells[1];
+      qty = cells[2];
+    }
+    // 2. Tab-separated data (обычная вставка из Excel):
+    else if(raw.includes("\t")){
+      const cells = raw.split("\t").map(x=>x.trim()).filter((_,i)=>i===0 || true);
+      if(cells.length < 2) continue;
+      name = cells[0];
+      qty = cells[cells.length - 1];
+    }
+    // 3. Plain text with spaces between columns:
+    //    берём последнее число как количество.
+    else{
+      const m = line.match(/^(.*?)\s+(-?\d[\d\s\u00A0]*(?:[.,]\d+)?)\s*$/);
+      if(!m) continue;
+      name = m[1].trim();
+      qty = m[2].trim();
+    }
+
     if(!name || /^-+$/.test(name) || /^:?-+:?$/.test(name)) continue;
     if(/^итог$/i.test(name)) continue;
+
     const n = parseNumber(qty);
     if(n === null) continue;
+
+    // В некоторых отчётах первая строка — название магазина + общий итог.
+    // Не считаем её товаром.
+    if(parsedDataRows === 0 && looksLikeHeader(name)){
+      continue;
+    }
+
     map.set(name, (map.get(name)||0) + n);
+    parsedDataRows++;
   }
+
   return map;
 }
 
