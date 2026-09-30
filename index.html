@@ -10,7 +10,7 @@ body{margin:0;background:#f5f7fb;color:#172033;font-family:Inter,Segoe UI,Arial,
 .wrap{max-width:1500px;margin:0 auto;padding:28px}
 h1{margin:0 0 8px;font-size:30px}
 .sub{color:#667085;margin-bottom:24px}
-.inputs{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.inputs{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
 .card{background:#fff;border:1px solid #e3e7ef;border-radius:14px;padding:16px;box-shadow:0 2px 8px #00000008}
 label{font-weight:700;display:block;margin-bottom:9px}
 .req{color:#d92d20}
@@ -61,6 +61,10 @@ tr:last-child td{border-bottom:0}
 | --- | --- |
 | БЛИННЫЙ 0,6 (10 сут) ФАНТЭЛЬ | 20,000 |
 | Итог | 5 000,000 |"></textarea>
+    </div>
+    <div class="card">
+      <label>Приход <span style="font-weight:400;color:#667085">(необязательно)</span></label>
+      <textarea id="receipt" placeholder="Можно оставить пустым"></textarea>
     </div>
     <div class="card">
       <label>Реализация с предыдущих дней <span style="font-weight:400;color:#667085">(необязательно)</span></label>
@@ -272,6 +276,7 @@ function status(row){
 function calculate(){
   const stockText = document.getElementById("stock").value.trim();
   const orderText = document.getElementById("orders").value.trim();
+  const receiptText = document.getElementById("receipt").value.trim();
   const salesText = document.getElementById("sales").value.trim();
   const err = document.getElementById("error");
   err.textContent = "";
@@ -281,13 +286,14 @@ function calculate(){
 
   const stock = normalizeMap(parseTable(stockText));
   const orders = normalizeMap(parseTable(orderText));
+  const receipt = normalizeMap(parseTable(receiptText));
   const sales = normalizeMap(parseTable(salesText));
 
-  // Основной список — объединение всех номенклатур из остатков, заказа и реализации.
+  // Основной список — объединение всех номенклатур из остатков, заказа, прихода и реализации.
   // Если товара нет в остатках, считаем его остаток равным 0, а заказ/реализацию
   // всё равно показываем в основной таблице. Так заказанный товар не теряется
   // из расчёта и сразу становится дефицитным/нулевым.
-  const allNames = new Set([...stock.keys(), ...orders.keys(), ...sales.keys()]);
+  const allNames = new Set([...stock.keys(), ...orders.keys(), ...receipt.keys(), ...sales.keys()]);
   rows = [];
   for(const name of allNames){
     const stockQty = Math.max(0, stock.get(name)||0);
@@ -307,7 +313,7 @@ function calculate(){
   for(const name of allNames){
     if(!stock.has(name)){
       const qty = orders.get(name)||sales.get(name)||0;
-      const type = orders.has(name) ? "Заказано" : "Реализация";
+      const type = orders.has(name) ? "Заказано" : (receipt.has(name) ? "Приход" : "Реализация");
       missing.push({name,qty,type});
     }
   }
